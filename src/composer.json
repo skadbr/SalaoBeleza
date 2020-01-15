@@ -1,0 +1,13 @@
+{
+    "name": "salao/mvc",
+    "description": "Sistema Controle Sal\u0000o",
+    "require": {
+
+    },
+    "autoload": {
+        "psr-4":{
+            "App\\":"../app/",
+            "Src\\":"../src/"
+        }
+    }
+}
