@@ -12,7 +12,8 @@
 <script src="public/DataTables/Responsive-2.2.3/js/dataTables.responsive.min.js"></script>
 <script src="public/DataTables/Responsive-2.2.3/js/responsive.bootstrap4.min.js"></script>
 <script src="public/DataTables/dataTables.buttons.min.js"></script>
-
+<!-- <script src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js"></script>
+<script src="https://editor.datatables.net/extensions/Editor/js/dataTables.editor.min.js"></script> -->
 <script src="public/js/transacao.js"></script>
 
 

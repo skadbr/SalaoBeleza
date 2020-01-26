@@ -67,7 +67,7 @@ class ClassColaborador extends ClassConexao{
 
         $totalRows = $this->Db->affected_rows;
 
- 
+        $dados = array();
         /* fetch associative array */
         while ($row = $result->fetch_assoc()) {
 //            printf ("%s (%s)\n", $row["idColab"], $row["nome"]);

@@ -4,6 +4,7 @@ use Src\Classes\ClassRender;
 use Src\Interfaces\InterfaceView;
 use App\Model\ClassAgenda;
 use App\Model\ClassCliente;
+use App\Model\ClassTransacao;
 
 class ControllerAgenda extends ClassAgenda {
 
@@ -16,6 +17,12 @@ class ControllerAgenda extends ClassAgenda {
     protected $nomeCli;
     protected $celCli;
     protected $colabId;
+    protected $idItemTransacao; 
+    protected $idServ;
+    protected $idProdt;
+    protected $valor;
+    protected $descProdtServ;
+
     
     use \Src\Traits\TraitUrlParser;
 
@@ -60,7 +67,44 @@ class ControllerAgenda extends ClassAgenda {
          if(isset($_POST["colabId"])){
             $this->colabId= filter_input(INPUT_POST,'colabId', FILTER_SANITIZE_SPECIAL_CHARS);
          }
+         if(isset($_POST["idItemTransacao"])){
+            $this->idItemTransacao= filter_input(INPUT_POST,'idItemTransacao', FILTER_SANITIZE_SPECIAL_CHARS);
+         }
+         if(isset($_POST["idAgenda"])){
+            $this->idAgenda= filter_input(INPUT_POST,'idAgenda', FILTER_SANITIZE_SPECIAL_CHARS);
+         }
+         if(isset($_POST["idServ"])){
+            $this->idServ= filter_input(INPUT_POST,'idServ', FILTER_SANITIZE_SPECIAL_CHARS);
+         }
+         if(isset($_POST["idProdt"])){
+            $this->idProdt= filter_input(INPUT_POST,'idProdt', FILTER_SANITIZE_SPECIAL_CHARS);
+         }
+         if(isset($_POST["valor"])){
+            $this->valor= filter_input(INPUT_POST,'valor', FILTER_SANITIZE_SPECIAL_CHARS);
+         }
+         if(isset($_POST["descProdtServ"])){$this->descProdtServ= filter_input(INPUT_POST,'descProdtServ', FILTER_SANITIZE_SPECIAL_CHARS);}
       }
+
+
+    public function SalvaItemTransacao() {
+        $this->recVariaveis();
+        $transacao = new ClassTransacao();
+        $retorno = $transacao->atualizaItemTransacao($this->idItemTransacao, $this->id, $this->cliId, $this->colabId, $this->idServ,$this->idProdt, $this->valor, $this->descProdtServ);
+        echo json_encode($retorno);
+    }
+
+    public function listaItensAgenda() {
+        $this->recVariaveis();
+        $transacao = new ClassTransacao();
+        echo ($transacao->listaItensAgenda($this->id));
+    }
+
+    public function ExcluiItemTransacao(){
+        $this->recVariaveis();
+        $transacao = new ClassTransacao();
+        echo json_encode($transacao->ExcluiItemTransacao($this->idItemTransacao));
+    }
+
 
     #chamar método cadastrar da ClassAgenda         
     public function cadastrar()
@@ -84,6 +128,9 @@ class ControllerAgenda extends ClassAgenda {
         if (is_numeric($this->cliId) && ($this->cliId > 0)) {
             $Cliente = new ClassCliente();
             $status = $Cliente->updClienteNomeCel($this->cliId,$this->nomeCli,$this->celCli);
+        } else {
+            $Cliente = new ClassCliente();
+            $this->cliId = $Cliente->addCliente($this->nomeCli,$this->celCli,'');
         }
         $retorno = $this->atualizaEvento($this->id,$this->title,$this->start,$this->end,$this->cliId,$this->colabId);
         echo $retorno;

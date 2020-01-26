@@ -66,7 +66,7 @@ class ClassCliente extends ClassConexao{
 
         $totalRows = $this->Db->affected_rows;
 
- 
+        $dados = array();
         /* fetch associative array */
         while ($row = $result->fetch_assoc()) {
 //            printf ("%s (%s)\n", $row["idCli"], $row["nome"]);
@@ -90,16 +90,23 @@ class ClassCliente extends ClassConexao{
             // $sub_array[] =    '<i class="fas fa-edit fa-fw fa-2x  tip-top update style='.'"color:#fff;"'.' title="Editar Cliente '.$row["idCli"].'" id='.$row["idCli"].'></i>';
             // $sub_array[] =    '<i class="fas fa-edit fa-fw fa-1x  tip-top update" title="Editar Cliente '.$row["idCli"].'" id='.$row["idCli"].' style="color:blue; text-align:center;"> </i>';
             // $sub_array[] =    '<i class="fas fa-trash fa-fw fa-1x  tip-top delete" title="Excluir Cliente '.$row["idCli"].'" id='.$row["idCli"].' style="color:red; text-align:center;"> </i>';
-            $sub_array[] =    '<button type="button" name="update" id="'.$row["idCli"].'" class="btn btn-labeled btn-info btn-sm tip-top update"  title="Editar Cliente '.$row["idCli"].'">
+            $sub_array[] =    '<div class="btn-group btn-group-sm" role="group"> <button type="button" name="update" id="'.$row["idCli"].'" class="btn btn-labeled btn-info btn-sm tip-top update"  title="Editar Cliente '.$row["idCli"].'">
                 <span class="btn-label">
                     <i class="fas fa-edit fa-fw fa-1x "></i>
                 </span>Editar
-                </button>';
-            $sub_array[] =    '<button type="button" name="delete" id="'.$row["idCli"].'" class="btn btn-labeled btn-danger btn-sm tip-top delete"  title="Excluir Cliente '.$row["idCli"].'">
+                </button>'.
+                                '<button type="button" name="delete" id="'.$row["idCli"].'" class="btn btn-labeled btn-danger btn-sm tip-top delete"  title="Excluir Cliente '.$row["idCli"].'">
                 <span class="btn-label">
                     <i class="fas fa-trash fa-fw fa-1x "></i>
                 </span>Excluir
-                </button>';
+                </button> </div>';
+            // $sub_array[] =    '<button type="button" name="delete" id="'.$row["idCli"].'" class="btn btn-labeled btn-danger btn-sm tip-top delete"  title="Excluir Cliente '.$row["idCli"].'">
+            //     <span class="btn-label">
+            //         <i class="fas fa-trash fa-fw fa-1x "></i>
+            //     </span>Excluir
+            //     </button>';
+
+            
             $dados[] = $sub_array;
         }
         $result->close();

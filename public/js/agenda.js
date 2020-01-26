@@ -7,6 +7,26 @@
 		}
 	}
 */
+function formatDateBR(d){
+	// padding function
+	var s = function(p){
+		return (''+p).length<2?'0'+p:''+p;
+	};
+	
+	// default parameter
+	if (typeof d === 'undefined'){
+		var d = new Date();
+	};
+	var d = new Date(d);
+	// return BR datetime format
+	return	s(d.getDate()) + '/' +	
+		    s(d.getMonth()+1) + '/' +
+	        d.getFullYear() + ' ' +
+		    s(d.getHours()) + ':' +
+		    s(d.getMinutes()) + ':' +
+		    s(d.getSeconds());
+}
+
 function getISODateTime(d){
 	// padding function
 	var s = function(p){
@@ -27,10 +47,64 @@ function getISODateTime(d){
 }
 
 
+function GeraTabelaItens(idAgenda){
+	// var DIRPAGE=document.location.origin+"/SalaoBeleza/";
+	$url = document.location.origin+"/SalaoBeleza/agenda/listaItensAgenda";
+	var retorno;
+	var data = {};
+	data.id = idAgenda;
+	$.ajax({
+		method: "POST",
+		dataType: "json",
+		async:false,
+		url: $url,
+		data: data,
+		success:  function(json) {
+			// var dados = [];
+			var lista='';
+			var somaReceita=0;
+			$(json).each(function(key, value) {
+				lista = lista + '<tr>';
+				lista = lista + '<th style="text-align:center;" scope="row">' + value.id +'</th>';
+				lista = lista + '<td style="text-align:center;" scope="row">' + value.tipo +'</td>';
+				lista = lista + '<td style="text-align:left;" scope="row">' + value.descricao + '('+value.idProdServ+')</td>';
+				lista = lista + '<td style="text-align:right;" scope="row">' + value.valor +'</td>';
+				lista = lista + '<td style="text-align: center"><span class="btn btn-danger btn-sm w-25 p-0" id="DelTransacao" idItemTransacao="'+value.id+'" title="Excluir '+value.id+'"><i class="far fa-trash-alt"> </span></td>';
+				somaReceita = somaReceita + parseFloat(value.valor);
+				// dados.push({id: value.id, tipo: value.tipo, descricao:value.descricao, valor:value.valor  });
+			});
+			lista = lista + '</tr>';
+			lista = lista + '<tr>';
+			lista = lista + '<td colspan="3" style="text-align: right"><strong>Total:</strong></td>';
+			lista = lista + '<td style="text-align: right"><strong>'+somaReceita+'</strong></td>';
+			lista = lista + '</tr>';
+			lista = lista + '<tr>';
+			lista = lista + '	<td colspan="3" style="text-align: right"><strong>Valor Cobrado:</strong></td>';
+			lista = lista + '	<td style="text-align:right;"> <input style="text-align:right;" class="span12" id="vlrcomdesconto" type="text" name="vlrcomdesconto" value="'+somaReceita+'"/> </td>';
+			lista = lista + '	<td style="text-align:center"> <button class="btn btn-faturar btn-info btn-sm" id="btn-faturar">Faturar</button></td>';
+			lista = lista + '</tr>';
+
+
+			// var dados = JSON.parse(json);
+			// jQuery("#AlertUpd").text(lista); 
+			// $("#AlertUpd").show();
+			retorno = lista;
+		},
+		error:  function(json) {
+		},
+		complete:  function(json) {
+		},
+	});
+	return retorno;
+}
+
+
+
 
 //$(document).ready(function(){
 document.addEventListener('DOMContentLoaded', function() {
-	var DIRPAGE=document.location.origin+"/salao/";
+
+	var DIRPAGE=document.location.origin+"/SalaoBeleza/";
 //	alert(DIRPAGE);
 	var initialLocaleCode = 'pt-br';
 
@@ -52,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		contentHeight: 'auto', //Ajustar conform minTime e Maxtime
 //		aspectRatio: 1.3 ,
 
-		defaultView: 'timeGridWeek',
+		defaultView: 'timeGridDay',
 		locale: initialLocaleCode,
 		buttonIcons: false, // show the prev/next text
 		weekNumbers: false,
@@ -66,13 +140,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
         eventRender: function(info) {
-			var tooltip = new Tooltip(info.el, {
-				title: info.event.text,
-				start: info.event.start,
-				placement: 'top',
-				trigger: 'hover',
-				container: 'body'
-			});
+			// var tooltip = new Tooltip(info.el, {
+			// 	title: info.event.text,
+			// 	start: info.event.start,
+			// 	placement: 'top',
+			// 	trigger: 'hover',
+			// 	container: 'body'
+			// });
 			if (moment(info.event.end) < moment()){
                 info.el.style.backgroundColor  = "#adadad";
                 info.el.style.borderColor ="#adadad";
@@ -92,31 +166,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		eventClick:  function(info) {  // when some one click on any event
 //			alert('clicou em alterar/excluir');
+			$("#AlertUpd").hide();
+
 			endtime = getISODateTime(info.event.end);
 			starttime = getISODateTime(info.event.start);
-//			starttime = info.event.start.toLocaleString();
-			
-			var mywhen = starttime + ' – ' + endtime;
-			$('#visualizar #modalTitleUpd').val(info.event.title);
-			$('#visualizar #modalTitle').text(info.event.title);
-//			$('#visualizar #modalTitle').val(info.event.extendedProps.client);
 
-			$('#visualizar #modalWhen').text(mywhen);
-			$('#visualizar #modalId').val(info.event.id);
-			$('#visualizar #modalIdTxt').text("Dados do Evento:"+info.event.id);
-			$('#visualizar #startTime').val(starttime);
-			$('#visualizar #startTime').text(starttime);
-			$('#visualizar #endTime').val(endtime);
-			$('#visualizar #endTime').text(endtime);
-			$('#visualizar #cliIdUpd').val(info.event.extendedProps.idCli);
-			$('#visualizar #nomeCliUpd').val(info.event.extendedProps.nomeCli);
-			$('#visualizar #nomeCliTxt').text(info.event.extendedProps.nomeCli);
-			$('#visualizar #celCliUpd').val(info.event.extendedProps.celCli);
-			$('#visualizar #celCliTxt').text(info.event.extendedProps.celCli);
-			$('#visualizar #colabIdUpd').val(info.event.extendedProps.idColab);
-			$('#visualizar #nomeColabUpd').val(info.event.extendedProps.nomeColab);
-			$('#visualizar #nomeColabTxt').text(info.event.extendedProps.nomeColab);
-//			$('#visualizar #modalTitle').trigger('focus');
+			$('#view #cardheader').text("Detalhes do evento " + info.event.id);
+			$('#view #title').html(info.event.title);
+			$('#view #celCli').text(info.event.extendedProps.celCli);
+			var mywhen = starttime + ' – ' + endtime;
+			$('#view #when').text(mywhen);
+
+			$('#upd #when').text(mywhen);
+			$('#upd #id').val(info.event.id);
+			$('#upd #title').val(info.event.title);
+			$('#upd #nomeCli').val(info.event.extendedProps.nomeCli);
+			$('#upd #celCli').val(info.event.extendedProps.celCli);
+			$('#upd #nomeColab').val(info.event.extendedProps.nomeColab);
+			$('#upd #idCli').val(info.event.extendedProps.idCli);
+			$('#upd #idColab').val(info.event.extendedProps.idColab);
+//			starttime = info.event.start.toLocaleString();
+			$('#upd #startTime').val(starttime);
+			$('#upd #endTime').val(endtime);
+
+			$('#upd #id').val(info.event.id);
+			// $('#upd #modalIdTxt').text("Dados do Evento:"+info.event.id);
+			
 			$('#visualizar').modal('show');
 		},
 
@@ -167,17 +242,17 @@ document.addEventListener('DOMContentLoaded', function() {
 				diaInteiro = 1;
 			} else {
 				diaInteiro = 0;
+	//			alert('clicou em novo');
+				endtime = getISODateTime(info.end);
+				starttime = getISODateTime(info.start);
+				var mywhen = starttime + ' – ' + endtime;
+				$('#add #startTime').val(starttime);
+				$('#add #endTime').val(endtime);
+				$('#add #when').text(mywhen);
+				$('#add #diaInteiro').val(diaInteiro);
+				$('#add #allDay').val(info.allDay);
+				$('#cadastrar').modal('show'); 
 			};
-//			alert('clicou em novo');
-			endtime = getISODateTime(info.end);
-			starttime = getISODateTime(info.start);
-			var mywhen = starttime + ' – ' + endtime;
-			$('#cadastrar #startTime').val(starttime);
-			$('#cadastrar #endTime').val(endtime);
-			$('#cadastrar #when').text(mywhen);
-			$('#cadastrar #diaInteiro').val(diaInteiro);
-			$('#cadastrar #allDay').val(info.allDay);
-			$('#cadastrar').modal('show'); 
 
 		},
 
@@ -191,57 +266,53 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 
 	});
-	
-	// Abrir e fechar modal de visualização e edição.
+	calendar.render();
+
+	// Abrir Editar.
 	$('#visualizar #btn-canc-vis').on("click", function(e) {
 		$('.form').slideToggle();
 		$('.visualizar').slideToggle();
-
+		$("#listaItens").html(GeraTabelaItens($('#upd #id').val()));
 	});
+
+	// Abrir Visualizar.
 	$('#visualizar #btn-canc-edit').on("click", function(e) {
 		$('.visualizar').slideToggle();
 		$('.form').slideToggle();
 	});
 
-	// nome do cliente autocomplete para add
-	$('#nomeCli').on('keyup', function() {
-        var length = $(this).val().length;
-        if (length > 1) {
-            $pesquisa = $('#nomeCli').val();
-			$pesquisa = DIRPAGE+'cliente/AutoComplete?nome='+$pesquisa;
-        $.getJSON($pesquisa, 
-            function(data){
-                var dados = [];
-                $(data).each(function(key, value) {
-                    dados.push({label: value.nome, id: value.idCli, celular: value.celular });
-                });
-                $('#nomeCli').autocomplete({ 
-                    source: dados,
-                    minLength: 2,
-                    select: function (event, ui) {
-                        if (ui.item && ui.item.id) {
-                            $("#nomeCli").val(ui.item.label);
-                            $("#cliId").val(ui.item.id);
-                            $("#celCli").val(ui.item.celular);
-                        return false;
-                        }   
-                    },
-                });
-            }
-            // .autocomplete( "instance" )._renderItem = function( ul, item ) {
-            //     return $( "<li>" )
-            // .append( "<div>" + item.label + "<br>" + item.desc + "</div>" )
-            // .appendTo( ul );
-            // }
-        ) //getJSON
-        };
-    });
+	$(document).on('click', '#DelTransacao', function(event) {
+		// alert('Excluir ' + idTransacao);
+		$url = DIRPAGE+"agenda/ExcluiItemTransacao";
+		var data = {};
+		data.idItemTransacao = $(this).attr('idItemTransacao');
+		$.ajax({
+			method: "POST",
+			dataType: "json",
+			// async:false,
+			url: $url,
+			data: data,
+			success:  function(json) { //json = {id: "12"}
+//				jQuery("#AlertUpd").html("Item "+json.id+" Excluído com sucesso!");
+				$("#AlertUpd").show();
+				$("#listaItens").html(GeraTabelaItens($('#upd #id').val()));
+			},
+			error:  function(json) {
+				// jQuery("#AlertUpd").html(json.responseText);
+				// $("#AlertUpd").show();
+			},
+			complete:  function(json) {
+				// jQuery("#AlertUpd").html(json.responseText);
+				// $("#AlertUpd").show();
+			},		
+		});
+	});
 
-	// nome do cliente autocomplete para update/delete
-	$('#nomeCliUpd').on('keyup', function() {
+	// nome do cliente autocomplete para add
+	$('#add #nomeCli').on('keyup', function() {
         var length = $(this).val().length;
         if (length > 1) {
-            $pesquisa = $('#nomeCliUpd').val();
+            $pesquisa = $('#add #nomeCli').val();
 			$pesquisa = DIRPAGE+'cliente/AutoComplete?nome='+$pesquisa;
 			$.getJSON($pesquisa, 
 				function(data){
@@ -249,15 +320,16 @@ document.addEventListener('DOMContentLoaded', function() {
 					$(data).each(function(key, value) {
 						dados.push({label: value.nome, id: value.idCli, celular: value.celular });
 					});
-					$('#nomeCliUpd').autocomplete({ 
+					$('#add #nomeCli').autocomplete({ 
 						source: dados,
 						minLength: 1,
 						select: function (event, ui) {
 							if (ui.item && ui.item.id) {
-								$("#nomeCliUpd").val(ui.item.label);
-								$("#cliIdUpd").val(ui.item.id);
-								$("#celCliUpd").val(ui.item.celular);
-							return false;
+								$("#add #nomeCli").val(ui.item.label);
+								$("#add #cliId").val(ui.item.id);
+								$("#add #celCli").val(ui.item.celular);
+								$("#add  #title").text($("#add #nomeColab").val()+"/"+$("#add #nomeCli").val());
+								return false;
 							}   
 						},
 					});
@@ -269,103 +341,251 @@ document.addEventListener('DOMContentLoaded', function() {
 				// }
 			) //getJSON
         };
+		$("#add #title").text($("#add #nomeColab").val()+"/"+$("#add #nomeCli").val());
     });
+
+	// nome do cliente autocomplete para update/delete
+	$('#upd #nomeCli').on('keyup', function() {
+		$('#upd #idCli').val("0");
+        var length = $(this).val().length;
+        if (length > 1) {
+            $pesquisa = $('#upd #nomeCli').val();
+			$pesquisa = DIRPAGE+'cliente/AutoComplete?nome='+$pesquisa;
+			$.getJSON($pesquisa, 
+				function(data){
+					// jQuery("#AlertUpd").html(data); 
+					// $("#AlertUpd").show();
+					var dados = [];
+					$(data).each(function(key, value) {
+						dados.push({label: value.nome, id: value.idCli, celular: value.celular });
+					});
+					$('#upd #nomeCli').autocomplete({ 
+						source: dados,
+						// minLength: 1,
+						select: function (event, ui) {
+							if (ui.item && ui.item.id) {
+								$("#upd #nomeCli").val(ui.item.label);
+								$("#upd #idCli").val(ui.item.id);
+								$("#upd #celCli").val(ui.item.celular);
+								$("#upd #title").val($("#upd #nomeColab").val()+"/"+$("#upd #nomeCli").val());
+								jQuery("#AlertUpd").html("Cliente Ok!"); 
+								$("#AlertUpd").show();
+								return false;
+							}   
+						},
+					});
+				}
+				// .autocomplete( "instance" )._renderItem = function( ul, item ) {
+				//     return $( "<li>" )
+				// .append( "<div>" + item.label + "<br>" + item.desc + "</div>" )
+				// .appendTo( ul );
+				// }
+			) //getJSON
+        };
+		$("#upd #title").val($("#upd #nomeColab").val()+"/"+$("#upd #nomeCli").val());
+    });
+
 
 
 	// nome do colaboradro autocomplete para add
-	$('#nomeColab').on('keyup', function() {
+	$('#add #nomeColab').on('keyup', function() {
         var length = $(this).val().length;
         if (length > 1) {
-            $pesquisa = $('#nomeColab').val();
+            $pesquisa = $('#add #nomeColab').val();
 			$pesquisa = DIRPAGE+'colaborador/AutoComplete?nome='+$pesquisa;
-        $.getJSON($pesquisa, 
-            function(data){
-                var dados = [];
-                $(data).each(function(key, value) {
-                    dados.push({label: value.nome, id: value.idColab });
-                });
-                $('#nomeColab').autocomplete({ 
-                    source: dados,
-                    minLength: 2,
-                    select: function (event, ui) {
-                        if (ui.item && ui.item.id) {
-                            $("#nomeColab").val(ui.item.label);
-                            $("#colabId").val(ui.item.id);
-                        return false;
-                        }   
-                    },
-                });
-            }
-            // .autocomplete( "instance" )._renderItem = function( ul, item ) {
-            //     return $( "<li>" )
-            // .append( "<div>" + item.label + "<br>" + item.desc + "</div>" )
-            // .appendTo( ul );
-            // }
-        ) //getJSON
+			$.getJSON($pesquisa, 
+				function(data){
+					var dados = [];
+					$(data).each(function(key, value) {
+						dados.push({label: value.nome, id: value.idColab });
+					});
+					$('#add #nomeColab').autocomplete({ 
+						source: dados,
+						// minLength: 1,
+						select: function (event, ui) {
+							if (ui.item && ui.item.id) {
+								$("#add #nomeColab").val(ui.item.label);
+								$("#add #colabId").val(ui.item.id);
+								$("#add #title").text($("#add #nomeColab").val()+"/"+$("#add #nomeCli").val());
+								return false;
+							}   
+						},
+					});
+				}
+				// .autocomplete( "instance" )._renderItem = function( ul, item ) {
+				//     return $( "<li>" )
+				// .append( "<div>" + item.label + "<br>" + item.desc + "</div>" )
+				// .appendTo( ul );
+				// }
+			) //getJSON
         };
+		$("#add #title").text($("#add #nomeColab").val()+"/"+$("#add #nomeCli").val());
     });
 
 	// nome do colaboradro autocomplete para update/delete
-	$('#nomeColabUpd').on('keyup', function() {
+	$('#upd #nomeColab').on('keyup', function() {
+		$('#upd #idColab').val("0");
         var length = $(this).val().length;
         if (length > 1) {
-            $pesquisa = $('#nomeColabUpd').val();
+            $pesquisa = $('#upd #nomeColab').val();
 			$pesquisa = DIRPAGE+'colaborador/AutoComplete?nome='+$pesquisa;
-        $.getJSON($pesquisa, 
-            function(data){
-                var dados = [];
-                $(data).each(function(key, value) {
-                    dados.push({label: value.nome, id: value.idColab });
-                });
-                $('#nomeColabUpd').autocomplete({ 
-                    source: dados,
-                    minLength: 2,
-                    select: function (event, ui) {
-                        if (ui.item && ui.item.id) {
-                            $("#nomeColabUpd").val(ui.item.label);
-                            $("#colabIdUpd").val(ui.item.id);
-                        return false;
-                        }   
-                    },
-                });
-            }
-            // .autocomplete( "instance" )._renderItem = function( ul, item ) {
-            //     return $( "<li>" )
-            // .append( "<div>" + item.label + "<br>" + item.desc + "</div>" )
-            // .appendTo( ul );
-            // }
-        ) //getJSON
+			$.getJSON($pesquisa, 
+				function(data){
+					var dados = [];
+					$(data).each(function(key, value) {
+						dados.push({label: value.nome, id: value.idColab });
+					});
+					$('#upd #nomeColab').autocomplete({ 
+						source: dados,
+						// minLength: 1,
+						select: function (event, ui) {
+							if (ui.item && ui.item.id) {
+								$("#upd #nomeColab").val(ui.item.label);
+								$("#upd #idColab").val(ui.item.id);
+								$("#upd #title").val($("#upd #nomeColab").val()+"/"+$("#upd #nomeCli").val());
+								jQuery("#AlertUpd").html("Colaborador Ok!");
+								$("#AlertUpd").show();
+								return false; 
+							}   
+						},
+					});
+				}
+				// .autocomplete( "instance" )._renderItem = function( ul, item ) {
+				//     return $( "<li>" )
+				// .append( "<div>" + item.label + "<br>" + item.desc + "</div>" )
+				// .appendTo( ul );
+				// }
+			) //getJSON
         };
+		$("#upd #title").val($("#upd #nomeColab").val()+"/"+$("#upd #nomeCli").val());
     });
 	
 
-
-
-	$('#cadastrar #addButton').on('click', function(e){ // add event submit
+	
+	$('#btn-AddItens').on('click', function(e){ // add event submit
 		// We don't want this to act as a link so cancel the link action
 		e.preventDefault();
-		doSubmit(); // send to form submit function
+		// alert('Additens');
+	 	$url = DIRPAGE+"agenda/SalvaItemTransacao";
+		var data = {};
+		data.idItemTransacao = 0;
+		data.id = $('#upd #id').val(); 
+		data.cliId = $('#upd #idCli').val(); 
+		data.colabId  = $('#upd #idColab').val(); 
+		if ($('#upd #tipoReceita').val() == 's'){
+			data.idServ = $('#upd #idReceita').val();  
+			data.idProdt = 0;
+		} else {
+			data.idServ = 0  
+			data.idProdt = $('#upd #idReceita').val(); 
+		}
+		data.valor =  $('#upd #valFaturar').val();
+		data.descProdtServ = "Agendamento " + $('#upd #title').val(); 
+		// $("#tipoReceita").val();
+		// $("#idReceita").val();
+
+		// debugger;
+		$.post($url, data)
+		.done(function (response) {
+			// var obj = JSON.parse(response);
+			// var myJSON = JSON.stringify(response);
+			jQuery("#AlertUpd").html(response); 
+			$("#AlertUpd").show();
+			$('#upd #NomeItem').val(''); //limpar depois de adicionar.
+			$('#upd #valFaturar').val('0.00');
+
+			$("#listaItens").html(GeraTabelaItens($('#upd #id').val()));
+		});
+	});
+
+	$('#upd #btn-faturar').on('click', function(e){ // add event submit
+		// We don't want this to act as a link so cancel the link action
+		e.preventDefault();
+		alert('faturar');
+	//	window.open("transacao","janela1","width=800,height=600,directories=no,location=no,menubar=no,scrollbars=no,status=no,toolbar=no,resizable=no");
+
+	});
+	
+
+
+	$('#add #addButton').on('click', function(e){ // add event submit
+		// We don't want this to act as a link so cancel the link action
+		e.preventDefault();
+		var nomeCli = $('#add #nomeCli').val();
+		var nomeColab = $('#add #nomeColab').val();
+        if(nomeCli != '' && nomeColab != '') {
+			var idColab = $('#add #colabId').val();
+			if (idColab > 0){
+				doSubmit(); // send to form submit function
+			} else {
+				alert('Escolha um colaborador cadastrado!');
+			}
+		} else {
+			alert('Informe Cliente e Colaborador!');
+		}
 	});
 		
-	$('#visualizar #updateButton').on('click', function(e){ // update event clicked
+	$('#upd #updateButton').on('click', function(e){ // update event clicked
 		// We don't want this to act as a link so cancel the link action
 		e.preventDefault();
-		doUpdate(); //send data to update function
+		var nomeCli = $('#upd #nomeCli').val();
+		var nomeColab = $('#upd #nomeColab').val();
+        if(nomeCli != '' && nomeColab != '') {
+			var idColab = $('#upd #idColab').val();
+			if (idColab > 0){
+				// $("#upd #title").val($("#upd #nomeColab").val()+"/"+$("#upd #nomeCli").val());
+				doUpdate(); //send data to update function
+			} else {
+				alert('Escolha um colaborador cadastrado!');
+			}
+		} else {
+			alert('Informe Cliente e Colaborador!');
+		}
 	});
 
-	$('#visualizar #deleteButton').on('click', function(e){ // delete event clicked
+	$('#upd #deleteButton').on('click', function(e){ // delete event clicked
 		// We don't want this to act as a link so cancel the link action
 		e.preventDefault();
 		doDelete(); //send data to delete function
 	});
 
 
-	
+	$('#NomeItem').on('keyup', function() {
+        var length = $(this).val().length;
+        if (length > 1) {
+            $pesquisa = $('#NomeItem').val();
+			$pesquisa = DIRPAGE+'transacao/AutoComplete?search='+$pesquisa;
+			$.getJSON($pesquisa, 
+				function(data){
+					var dados = [];
+					$(data).each(function(key, value) {
+						dados.push({id: value.id, tipo: value.tipo, label: value.descr, valbase: value.valbase });
+						// dados.push({label: value.descr, id: value.id });
+					});
+					$('#NomeItem').autocomplete({ 
+						source: dados,
+						// minLength: 1,
+						select: function (event, ui) {
+							if (ui.item && ui.item.id) {
+								$("#NomeItem").val(ui.item.label +"(R$" +ui.item.valbase+")");
+								$("#valFaturar").val(ui.item.valbase);
+								$("#tipoReceita").val(ui.item.tipo);
+								$("#idReceita").val(ui.item.id);
+								jQuery("#AlertUpd").html("Receita Ok!"); 
+								$("#AlertUpd").show();
+								return false;
+							}
+						},
+					});
+				}
+			) //getJSON
+        };
+    });
 
 
 	function doDelete(){  // delete event 
 		$("#visualizar").modal('hide');
-		var eventID = $('#visualizar #modalId').val();
+		var eventID = $('#upd #id').val();
 //		alert(eventID);
 		$.ajax({
 			url: DIRPAGE+'agenda/excluirEvento',
@@ -375,6 +595,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				if(json == 1) {
 					var event = calendar.getEventById( eventID );
 					event.remove()	;
+					jQuery("#meuAlerta").html("Agenda Excluído com sucesso!");
+					$("#meuAlerta").show();
 				} else {
 					return false;
 				}
@@ -383,15 +605,16 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	function doUpdate(){  // update event 
-		$("#visualizar").modal('hide');
-		var eventID = $('#visualizar #modalId').val();
-		var startTime = $('#visualizar #startTime').val();
-		var endTime   = $('#visualizar #endTime').val();
-		var DescEvento  = $('#visualizar #modalTitleUpd').val();
-		var cliId  = $('#visualizar #cliIdUpd').val();
-		var nomeCli  = $('#visualizar #nomeCliUpd').val();
-		var celCli  = $('#visualizar #celCliUpd').val();
-		var colabId  = $('#visualizar #colabIdUpd').val();
+		// $("#visualizar").modal('hide');
+		var eventID = $('#upd #id').val();
+		var startTime = $('#upd #startTime').val();
+		var endTime   = $('#upd #endTime').val();
+		var nomeCli  = $('#upd #nomeCli').val();
+		var DescEvento  = $('#upd #title').val();
+		var cliId  = $('#upd #idCli').val();
+		var celCli  = $('#upd #celCli').val();
+		var colabId  = $('#upd #idColab').val();
+
 		var Dados = 'id='+eventID+'&title='+DescEvento+'&start='+startTime+'&end='+endTime+'&cliId='+cliId+'&nomeCli='+nomeCli+'&celCli='+celCli+'&colabId='+colabId;
 		// alert("atualizar\n"+Dados);
 		$.ajax({
@@ -400,13 +623,13 @@ document.addEventListener('DOMContentLoaded', function() {
 			dataType: "json",
 			type: "POST",
 			error: function(e) {
-				jQuery("#meuAlerta").html(e["responseText"]);
-				$("#meuAlerta").show();
+				jQuery("#AlertUpd").html(e["responseText"]);
+				$("#AlertUpd").show();
 			},
 			success: function(retorno) {
-				// jQuery("#meuAlerta").html(retorno["affected_rows"]);
-				jQuery("#meuAlerta").html("Evento alterado com sucesso!");
-				$("#meuAlerta").show();
+				// jQuery("#AlertUpd").html(retorno["affected_rows"]);
+				jQuery("#AlertUpd").html("Agenda alterado com sucesso!");
+				$("#AlertUpd").show();
 				// if(retorno["affected_rows"] == 1) { //comentado pois mesmo que usuario não altere nada, devemos fazer o refetch pois pode ser que o usuario tenha alterado o nome do usuario ou o telefone.
 					calendar.unselect();
 					calendar.refetchEvents();
@@ -419,24 +642,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function doSubmit(){ // add event
 		$("#cadastrar").modal('hide');
-		var title = $('#cadastrar #title').val();
-		var startTime = $('#cadastrar #startTime').val();
-		var endTime = $('#cadastrar #endTime').val();
-		var diaInteiro = $('#cadastrar #diaInteiro').val();
-		var cliId = $('#cadastrar #cliId').val();
-		var nomeCli = $('#cadastrar #nomeCli').val();
-		var celCli = $('#cadastrar #celCli').val();
-		var colabId = $('#cadastrar #colabId').val();
+		var title = $('#add #title').text();
+		var startTime = $('#add #startTime').val();
+		var endTime = $('#add #endTime').val();
+		var diaInteiro = $('#add #diaInteiro').val();
+		var cliId = $('#add #cliId').val();
+		var nomeCli = $('#add #nomeCli').val();
+		var celCli = $('#add #celCli').val();
+		var colabId = $('#add #colabId').val();
 		
-
 		var data = 'title='+ encodeURIComponent(title)  
-				 + '&start='+ encodeURIComponent(startTime)
-				 + '&end='+ encodeURIComponent(endTime)
-				 + '&allday='+ encodeURIComponent(diaInteiro)
-				 + '&cliId='+ encodeURIComponent(cliId)
-				 + '&nomeCli='+ encodeURIComponent(nomeCli)
-				 + '&celCli=' + encodeURIComponent(celCli)
-				 + '&colabId='+ encodeURIComponent(colabId);
+				+ '&start='+ encodeURIComponent(startTime)
+				+ '&end='+ encodeURIComponent(endTime)
+				+ '&allday='+ encodeURIComponent(diaInteiro)
+				+ '&cliId='+ encodeURIComponent(cliId)
+				+ '&nomeCli='+ encodeURIComponent(nomeCli)
+				+ '&celCli=' + encodeURIComponent(celCli)
+				+ '&colabId='+ encodeURIComponent(colabId);
 		$.ajax({
 			url: DIRPAGE+'agenda/cadastrar',
 			data: data,
@@ -457,16 +679,15 @@ document.addEventListener('DOMContentLoaded', function() {
 					// var event = calendar.getEventById( json.id );
 					// event.setExtendedProp(idCli, cliId );
 					// event.setExtendedProp( idColab, colabId);
-					$('#cadastrar #title').val(''); //limpar depois de adicionar.
-					$('#cadastrar #cliId').val('0'); //limpar depois de adicionar.
-					$('#cadastrar #colabId').val('0'); //limpar depois de adicionar.
-					$('#cadastrar #nomeCli').val(''); //limpar depois de adicionar.
-					$('#cadastrar #celCli').val(''); //limpar depois de adicionar.
-					$('#cadastrar #nomeColab').val(''); //limpar depois de adicionar.
+					$('#add #title').text(''); //limpar depois de adicionar.
+					$('#add #cliId').val('0'); //limpar depois de adicionar.
+					$('#add #colabId').val('0'); //limpar depois de adicionar.
+					$('#add #nomeCli').val(''); //limpar depois de adicionar.
+					$('#add #celCli').val(''); //limpar depois de adicionar.
+					$('#add #nomeColab').val(''); //limpar depois de adicionar.
 					calendar.unselect();
 					calendar.refetchEvents();
 				}
 		});
 	}	
-	calendar.render();
 });

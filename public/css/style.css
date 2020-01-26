@@ -2773,7 +2773,7 @@ ul.amounts li {
     color: #FFFFFF;
 }
 /*table*/
-.table-advance tr td {
+/* .table-advance tr td {
     vertical-align:middle !important;
 }
 .no-border {
@@ -2833,7 +2833,7 @@ ul.amounts li {
 }
 .dataTable tr:last-child {
     border-bottom: 1px solid #ddd;
-}
+} */
 /*button*/
 .btn-row {
     margin-bottom: 10px;

@@ -1,4 +1,4 @@
 RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-f 
-RewriteRule ^(.*)$ /salao/public/index.php?url=$1 [QSA,L]
+RewriteRule ^(.*)$ /SalaoBeleza/public/index.php?url=$1 [QSA,L]
 

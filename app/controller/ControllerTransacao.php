@@ -4,6 +4,12 @@ use Src\Classes\ClassRender;
 use Src\Interfaces\InterfaceView;
 use App\Model\ClassTransacao;
 
+function console_log( $data ){
+    echo '<script>';
+    echo 'console.log('. json_encode( $data ) .')';
+    echo '</script>';
+  }
+
 class ControllerTransacao extends ClassTransacao {
 
 
@@ -78,6 +84,17 @@ class ControllerTransacao extends ClassTransacao {
         }
     }
 
+
+    public function AutoComplete() 
+    {
+ //       $this->recVariaveis();
+        // $this->$nome = $_GET["nome"];
+        // echo 'nome é:'.$this->$nome;
+        echo($this->ListaReceitaByNome($_GET["search"]));
+    }
+   
+
+   
     public function buscar()
     {
         // $search = array();
@@ -105,21 +122,30 @@ class ControllerTransacao extends ClassTransacao {
 
         if($this->operacao == "Add")
         {
-            if ($this->id = $this->addTransacao($this->data,$this->entrada_saida,$this->idAgenda,$this->idCli,$this->nome,$this->idColab,$this->valor,$this->descTransacao)) {
+//            $valFormated =number_format ( floatval($this->valor) ,2 , "." ,"" );
+            $valFormated = number_format(str_replace(",",".",str_replace(".","",$this->valor)), 2, '.', '');
+            console_log($valFormated);
+            $retorno = $this->id = $this->addTransacao($this->data,$this->entrada_saida,$this->idAgenda,$this->idCli,$this->nome,$this->idColab,$valFormated,$this->descTransacao);
+            if (isset($retorno["id"])) {
+                $this->id = $retorno["id"];
                 echo 'Transacao <strong>('.$this->id.')'.$this->descTransacao.' </strong> inserido com sucesso!';
             }else {
-                echo 'Problema ao atualizar Transacao <strong>'.$this->descTransacao.' </strong>!';
+                // echo print_r($retorno);
+                echo 'Problema ao adicionar Transacao <strong>'.$this->descTransacao.' </strong>!'.'<br>'. $retorno["SQL"].'<br>'. $retorno["Error"] ;
             };
         }
         if($this->operacao == "Edit")
         {
-            if($this->updTransacao($this->id,$this->data,$this->entrada_saida,$this->idAgenda,$this->idCli,$this->nome,$this->idColab,$this->valor,$this->descTransacao)) {
+            $valFormated = number_format(str_replace(",",".",str_replace(".","",$this->valor)), 2, '.', '');
+            console_log($valFormated);
+            if($this->updTransacao($this->id,$this->data,$this->entrada_saida,$this->idAgenda,$this->idCli,$this->nome,$this->idColab,$valFormated,$this->descTransacao)) {
                 echo 'Transacao <strong>('.$this->id.')'.$this->descTransacao.' </strong> Alterado com sucesso!';
             } else {
                 echo 'Problema ao atualizar Transacao <strong>'.$this->descTransacao.' </strong>!';
             }
         }
     }
+
 
 
 }

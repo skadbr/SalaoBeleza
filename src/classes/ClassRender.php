@@ -20,41 +20,41 @@ class ClassRender{
 
     public function renderLayout()
     {
-        include_once(DIRREQ."app/view/Layout.php");
+        include_once(DIRREQ."App/View/Layout.php");
     }
 
     public function addHead()
     {
-        if(file_exists(DIRREQ."app/view/{$this->getDir()}/Head.php")){
-            include(DIRREQ."app/view/{$this->getDir()}/Head.php");
+        if(file_exists(DIRREQ."App/View/{$this->getDir()}/Head.php")){
+            include(DIRREQ."App/View/{$this->getDir()}/Head.php");
         }
     }
 
     public function addHeader()
     {
-        if(file_exists(DIRREQ."app/view/{$this->getDir()}/Header.php")){
-            include(DIRREQ."app/view/{$this->getDir()}/Header.php");
+        if(file_exists(DIRREQ."App/View/{$this->getDir()}/Header.php")){
+            include(DIRREQ."App/View/{$this->getDir()}/Header.php");
         }
     }
 
     public function addSidebar()
     {
-        if(file_exists(DIRREQ."app/view/{$this->getDir()}/Sidebar.php")){
-            include(DIRREQ."app/view/{$this->getDir()}/Sidebar.php");
+        if(file_exists(DIRREQ."App/View/{$this->getDir()}/Sidebar.php")){
+            include(DIRREQ."App/View/{$this->getDir()}/Sidebar.php");
         }
     }
 
     public function addMain()
     {
-        if(file_exists(DIRREQ."app/view/{$this->getDir()}/Main.php")){
-            include(DIRREQ."app/view/{$this->getDir()}/Main.php");
+        if(file_exists(DIRREQ."App/View/{$this->getDir()}/Main.php")){
+            include(DIRREQ."App/View/{$this->getDir()}/Main.php");
         }
     }
 
     public function addFooter()
     {
-        if(file_exists(DIRREQ."app/view/{$this->getDir()}/Footer.php")){
-            include(DIRREQ."app/view/{$this->getDir()}/Footer.php");
+        if(file_exists(DIRREQ."App/View/{$this->getDir()}/Footer.php")){
+            include(DIRREQ."App/View/{$this->getDir()}/Footer.php");
         }
     }
 }

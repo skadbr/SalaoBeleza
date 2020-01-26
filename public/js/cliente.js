@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
 	
-//	var DIRPAGE="http://"+document.location.hostname+":"+document.location.port+"/salao/";
-	var DIRPAGE=document.location.origin+"/salao/";
+	var DIRPAGE=document.location.origin+"/SalaoBeleza/";
 
 	$('#add_button').click(function(){
 		$('#user_form')[0].reset();
@@ -13,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	var dataTable = $('#user_data').DataTable({
 		"processing":true,
-		"lengthChange": false,
+//		"lengthChange": false,
 		responsive: true,
 		"serverSide":true,
 		"order":[],
@@ -42,13 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		},
 		"columnDefs":[
-			{
-				"targets":[0, 3, 4],
-				"orderable":false,
-			},
-
+			{"targets":[0, 3], "orderable":false, "searchable":false,},
 		],
-
 		"oLanguage": {
                     "sProcessing":   "Processando...",
                     "sLengthMenu":   "Mostrar _MENU_ registros",

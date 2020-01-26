@@ -1,3 +1,6 @@
+$('.celCli').mask('(00) 0 0000-0000');
+$('.valor').mask('#.##0,00', {reverse: true});
+
 function getISODateTime(d){
 	// padding function
 	var s = function(p){
@@ -76,10 +79,37 @@ function datatimeFormatToInternational(data) {
 	return anoF + "-" + mesF + "-" + diaF + " " + hora + ":" + minuto + ":" + segundos;
 }
 
+$(document).on('click', '#DelTransacao', function(event) {
+	var idTransacao = $(this).attr('TransId');
+	alert('Excluir ' + idTransacao);
+	// if((idServico % 1) == 0){
+	// 	$("#divServicos").html("<div class='progress progress-info progress-striped active'><div class='bar' style='width: 100%'></div></div>");
+	// 	$.ajax({
+	// 	  type: "POST",
+	// 	  url: "<?php echo base_url();?>index.php/os/excluirServico",
+	// 	  data: "idServico="+idServico,
+	// 	  dataType: 'json',
+	// 	  success: function(data)
+	// 	  {
+	// 		if(data.result == true){
+	// 			$("#divServicos").load("<?php echo current_url();?> #divServicos" );
+
+	// 		}
+	// 		else{
+	// 			alert('Ocorreu um erro ao tentar excluir serviço.');
+	// 		}
+	// 	  }
+	// 	  });
+	// 	  return false;
+	// }
+
+});
+
+
+
 document.addEventListener('DOMContentLoaded', function() {
 	
-//	var DIRPAGE="http://"+document.location.hostname+":"+document.location.port+"/salao/";
-	var DIRPAGE=document.location.origin+"/salao/";
+	var DIRPAGE=document.location.origin+"/SalaoBeleza/";
 
 	$('#add_button').click(function(){
 		$('#user_form')[0].reset();
@@ -90,13 +120,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	});
 
+
+ 
 	var dataTable = $('#user_data').DataTable({
-		"processing":true,
-		"lengthChange": false,
+		// "processing":true,
+		"lengthChange": true,
 		responsive: true,
 		"serverSide":true,
+		// searching: true,
+		// selectable: true,
 		"order":[],
-        // dom: 'Bfrtip',
+
+		// dom: 'Bfrtip',
         // buttons: [
         //     {
         //         text: 'Adicionar novo',
@@ -112,22 +147,37 @@ document.addEventListener('DOMContentLoaded', function() {
         //     }
         // ],
 
-		"ajax":{
+		"ajax":({
 			type:"POST",
 			url: DIRPAGE+"transacao/buscar",
-            // error: function(err){  // error handling
-			// 	jQuery("#meuAlerta").html(err["responseText"]);
-			// 	$("#meuAlerta").show();
-			// console.log("error", err);
-            // }		
+			success:function(data)
+			{
+				jQuery("#meuAlerta").html(data)
+				$("#meuAlerta").show();
+			},
+			error: function(err){  // error handling
+					jQuery("#meuAlerta").html(err["responseText"]);
+					$("#meuAlerta").show();
+				console.log("error", err);
+				},	
 
-		},
+			}
+		),
+
 		"columnDefs":[
 			{
-				"targets":[0, 6, 7],
+				"targets":[0,1,5, 6],
 				"orderable":false,
 			},
-
+			{
+				"targets": [5],
+				"className": "text-right",
+		   },
+		   {
+			"targets": 1,
+			"className": "text-center",
+	  		},
+        	{ "searchable": false, "targets": [3,4], }
 		],
 
 		"oLanguage": {
@@ -136,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     "sZeroRecords":  "Não foram encontrados resultados",
                     "sInfo":         "Mostrando de _START_ até _END_ de _TOTAL_ registros",
                     "sInfoEmpty":    "Mostrando de 0 até 0 de 0 registros",
-                    "sInfoFiltered": "",
+                    "sInfoFiltered": "(filtrado de _MAX_ registros no total)",
                     "sInfoPostFix":  "",
                     "sSearch":       "Buscar:",
                     "sUrl":          "",
@@ -147,14 +197,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         "sLast":     "Último"
                     }
                 },
-
 	});
 	new $.fn.dataTable.FixedHeader( dataTable );
+
+	$('#user_data tbody').on('click', 'tr', function () {
+		var data = dataTable.row( this ).data();
+//		alert( 'You clicked on '+data[0]+'\'s row' );
+	} );
 
 
 	$(document).on('submit', '#user_form', function(event){
 		event.preventDefault();
-		var data = $('#data').val();
+		var data = $('#data').text();
 		var data = data.toDate("dd/mm/yyyy hh:ii:ss");
 		var data = datatimeFormatToInternational(data);
 		// var entrada_saida = $('#entrada_saida').val();
@@ -228,21 +282,29 @@ document.addEventListener('DOMContentLoaded', function() {
 			method:"POST",
 			data:{id:id},
 			dataType:"json",
-			success:function(data)
+			success:function(dados)
 			{
 				$('#userModal').modal('show');
 				// var data = $('#data').val();
 				// var dataTrans = data.data.toDate("dd/mm/yyyy hh:ii:ss");
 				// var data = datatimeFormatToInternational(data);
 		
-				$('#data').val(formatDateBR(data.data));
-				$('#entrada_saida').val(data.entrada_saida);
-				$('#idAgenda').val(data.idAgenda);
-				$('#idCli').val(data.idCli);
-				$('#nome').val(data.nome);
-				$('#idColab').val(data.idColab);
-				$('#valor').val(data.valor);
-				$('#descTransacao').val(data.descTransacao);
+				$('#data').val(formatDateBR(dados.data));
+
+				if (dados.entrada_saida == "e"){
+					$('#entrada').prop('checked',true);
+				} else {
+					$('#saida').prop('checked',true);
+				}
+				// $('#entrada_saida').val(data.entrada_saida);
+
+				$('#idAgenda').val(dados.idAgenda);
+				$('#idCli').val(dados.idCli);
+				$('#celCli').val(dados.celCli);
+				$('#nome').val(dados.nome);
+				$('#idColab').val(dados.idColab);
+				$('#valor').val(dados.valor);
+				$('#descTransacao').val(dados.descTransacao);
 
 				$('.modal-title').text("Editar transacao");
 				$('#id').val(id);
@@ -273,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		{
 			return false;	
 		}
-	});
-	
-	
+	});	
+
+
 });

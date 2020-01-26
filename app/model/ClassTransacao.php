@@ -54,7 +54,8 @@ class ClassTransacao extends ClassConexao{
 
         $result = $this->Db->query($query);
         $totalRows = $this->Db->affected_rows;
- 
+
+        $dados = array();
         /* fetch associative array */
         while ($row = $result->fetch_assoc()) {
             $sub_array = array();
@@ -64,16 +65,22 @@ class ClassTransacao extends ClassConexao{
             $sub_array[] = $row["descTransacao"];
             $sub_array[] = $row["nome"];
             $sub_array[] = number_format($row["valor"], 2, ',', '.');
-            $sub_array[] =    '<button type="button" name="update" id="'.$row["id"].'" class="btn btn-labeled btn-info btn-sm tip-top update"  title="Editar transacao '.$row["id"].'">
+            $sub_array[] =    '<div class="btn-group btn-group-sm" role="group"> <button type="button" name="update" id="'.$row["id"].'" class="btn btn-labeled btn-info btn-sm tip-top update"  title="Editar transacao '.$row["id"].'">
                 <span class="btn-label">
                     <i class="fas fa-edit fa-fw fa-1x "></i>
                 </span>Editar
-                </button>';
-            $sub_array[] =    '<button type="button" name="delete" id="'.$row["id"].'" class="btn btn-labeled btn-danger btn-sm tip-top delete"  title="Excluir transacao '.$row["id"].'">
+                </button>'.
+                              '<button type="button" name="delete" id="'.$row["id"].'" class="btn btn-labeled btn-danger btn-sm tip-top delete"  title="Excluir transacao '.$row["id"].'">
                 <span class="btn-label">
                     <i class="fas fa-trash fa-fw fa-1x "></i>
                 </span>Excluir
-                </button>';
+                </button> </div>';
+            //   $sub_array[] = 1;
+            // $sub_array[] =    '<button type="button" name="delete" id="'.$row["id"].'" class="btn btn-labeled btn-danger btn-sm tip-top delete"  title="Excluir transacao '.$row["id"].'">
+            //     <span class="btn-label">
+            //         <i class="fas fa-trash fa-fw fa-1x "></i>
+            //     </span>Excluir
+            //     </button>';
             $dados[] = $sub_array;
         }
         $result->close();
@@ -89,7 +96,6 @@ class ClassTransacao extends ClassConexao{
 //        echo '<pre>'; print_r($saida); echo '</pre>'; 
         return json_encode($saida);
     }
-
 
     public function addTransacao($data,$entrada_saida,$idAgenda,$idCli,$nome,$idColab,$valor,$descTransacao)
     {
@@ -111,11 +117,18 @@ class ClassTransacao extends ClassConexao{
             ".$idColab.",
             ".$valor.",
             '".$descTransacao."')";
-        if (mysqli_query($this->Db,$sql)){
-            return mysqli_insert_id($this->Db);
-        }else{ 
-            return false;
-        };
+        try {
+            if (mysqli_query($this->Db,$sql)) {
+                $return["id"] = mysqli_insert_id($this->Db);
+            } else {
+                $return["SQL"] = $sql;
+                $return["Error"] = 'Erro sql';
+            }
+        } catch (mysqli_sql_exception $e) {
+            $return["SQL"] = $sql;
+            $return["Error"] = $e->errorMessage();
+        }
+        return $return;
 
     }
 
@@ -153,6 +166,7 @@ class ClassTransacao extends ClassConexao{
                     transacao.idColab,
                     transacao.idAgenda,
                     cliente.nome, 
+                    cliente.celular, 
                     transacao.valor 
                 from transacao, cliente 
                 where cliente.idCli = transacao.idCli 
@@ -173,9 +187,10 @@ class ClassTransacao extends ClassConexao{
                 $saida["entrada_saida"] = $linha["entrada_saida"];
                 $saida["idAgenda"] = $linha["idAgenda"];
                 $saida["idCli"] = $linha["idCli"];
+                $saida["celCli"] = $linha["celular"];
                 $saida["nome"] = $linha["nome"];
                 $saida["idColab"] = $linha["idColab"];
-                $saida["valor"] = $linha["valor"];
+                $saida["valor"] = number_format($linha["valor"], 2, ',', '.');
                 $saida["descTransacao"] = $linha["descTransacao"];
             }
             /* free result set */
@@ -202,5 +217,126 @@ class ClassTransacao extends ClassConexao{
         }
     }
     #fim deletar transacao
+
+
+    public function ListaReceitaByNome($q)
+    {
+        // if(isset($_POST["search"])) {
+        //     $q = $_POST["search"];
+        // }
+        $this->Db = $this->conexaoDB();
+        $sql = "
+                SELECT 'p' as tipo, idProdt as id, descricao as descr,vlrVenda as valbase FROM produto
+                where descricao like '%$q%'
+                union
+                select 's' as tipo, idServ as id, descr,valbase from servico
+                where descr like '%$q%' limit 10";
+        $result = mysqli_query($this->Db,$sql);
+        while($row = mysqli_fetch_assoc($result))
+        {
+            $row_set[] = $row; 
+            // $row_set[] = array('label'=>$row['nome'],'id'=>$row['idCli']);; 
+        }
+        if (isset($row_set)){
+            echo json_encode($row_set);
+        } else{
+            echo '[{"tipo":"0","descr:"Não existe"}]';
+        }
+    }
+
+
+    public function listaItensAgenda($idAgenda) {
+        $this->Db = $this->conexaoDB();
+
+        $query = "SELECT  itenstransacao.id, 's' as tipo,itenstransacao.idServ as idProdServ, servico.descr as descricao,  itenstransacao.valor
+                FROM itenstransacao, servico
+                WHERE itenstransacao.idAgenda = $idAgenda
+                and servico.idServ = itenstransacao.idServ
+                UNION
+                SELECT itenstransacao.id, 'p' as tipo, itenstransacao.idProdt as idProdServ, produto.descricao as descricao,  itenstransacao.valor
+                FROM itenstransacao, produto
+                WHERE itenstransacao.idAgenda = $idAgenda
+                and produto.idProdt = itenstransacao.idProdt
+                ";
+        $result = mysqli_query($this->Db,$query);
+        while($row = mysqli_fetch_assoc($result))
+        {
+            $row_set[] = $row; 
+        }
+        if (isset($row_set)){
+            echo json_encode($row_set);
+        } else{
+            echo '["msg":"Não econtrou itens na agenda"]';
+        }
+    }
+
+    public function atualizaItemTransacao($idItemTransacao, $idAgenda, $idCli, $idColab, $idServ,$idProdt, $valor, $descProdtServ)
+    {
+        $this->Db = $this->conexaoDB();
+        if ($idItemTransacao && $idItemTransacao > 0) {
+            $sql = "UPDATE `itenstransacao` SET 
+            `idAgenda`=$idAgenda,
+            `idCli`=$idCli,
+            `idColab`=$idColab,
+            `idServ`=$idServ,
+            `idProdt`=$idProdt,
+            `valor`=$valor,
+            `descProdtServ`="."'".$descProdtServ."' 
+            WHERE 
+            `id`=$idItemTransacao";
+            try {
+                if (mysqli_query($this->Db,$sql)) {
+                    $return["id"] = $idItemTransacao;
+                } else {
+                    $return["SQL"] = $sql;
+                    $return["Error"] = 'Erro sql';
+                }
+            } catch (mysqli_sql_exception $e) {
+                $return["SQL"] = $sql;
+                $return["Error"] = $e->errorMessage();
+            }
+            return $return;
+
+        }else {
+            $sql = "INSERT INTO `itenstransacao`(`idAgenda`, `idCli`, `idColab`, `idServ`, `idProdt`, `valor`, `descProdtServ`)
+                    VALUES ($idAgenda, $idCli, $idColab, $idServ,$idProdt, $valor,"."'".$descProdtServ."')";
+            try {
+                if (mysqli_query($this->Db,$sql)) {
+                    $return["id"] = mysqli_insert_id($this->Db);
+                } else {
+                    $return["SQL"] = $sql;
+                    $return["Error"] = 'Erro sql';
+                }
+            } catch (mysqli_sql_exception $e) {
+                $return["SQL"] = $sql;
+                $return["Error"] = $e->errorMessage();
+            }
+            return $return;
+        }
+
+    }
+
+    public function ExcluiItemTransacao($idItemTransacao)
+    {
+        if ($idItemTransacao && $idItemTransacao > 0) {
+            $this->Db = $this->conexaoDB();
+            $sql = "DELETE from `itenstransacao`  
+            WHERE  `id`=$idItemTransacao";
+            try {
+                if (mysqli_query($this->Db,$sql)) {
+                    $return["id"] = $idItemTransacao;
+                } else {
+                    $return["SQL"] = $sql;
+                    $return["Error"] = 'Erro sql';
+                }
+            } catch (mysqli_sql_exception $e) {
+                $return["SQL"] = $sql;
+                $return["Error"] = $e->errorMessage();
+            }
+            return $return;
+        }else{
+            return false;
+        }
+    }
 
 }

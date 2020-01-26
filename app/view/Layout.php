@@ -23,6 +23,8 @@
 
         <script src="public/jquery-3.4.1.min.js"></script>
         <script src="public/jquery-ui-1.12.1/jquery-ui.js"></script>
+        <script src="https://igorescobar.github.io/jQuery-Mask-Plugin/js/jquery.mask.min.js"></script> 
+
         <script src="public/js/bootstrap.min.js"></script>
 
         <!-- precisa para o abrir ou fechar os submenus do  menu lateral -->
@@ -30,7 +32,6 @@
         <!-- precisa para o esconder menu lateral -->
         <script src="public/js/jquery.nicescroll.js"></script>
         <script src="public/js/scripts.js"></script>
-
         <script src="public/moment.min.js"></script>
 
     </head>
