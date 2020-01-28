@@ -23,15 +23,6 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<h6 class="modal-title text-center">Edição de Evento</h6>
-						<section id="main-content" class="merge-left">
-		                    <!-- <div class="alert alert-info fade show" id="AlertUpd"></div> -->
-							<div class="alert alert-warning alert-dismissible fade show" role="alert" id="AlertUpd">
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>
-							</div>
-						</section>
-						<!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
 					</div>
 					<div class="modal-body">
 						<div class="visualizar" id="view">
@@ -64,8 +55,8 @@
 										<input id="nomeCli" class="form-control" type="text" name="nomeCli" value=""  />
 									</div>
 									<div class="col-sm-4">
-									<input type="text" class="form-control" id="celCli" name="celCli" placeholder="Celular">
-								</div>
+										<input type="text" class="form-control" id="celCli" name="celCli" placeholder="Celular">
+									</div>
 								</div>
 								<div class="form-group row">
 									<label for="nomeColab" class="col-sm-2 control-label">Colaborador<span class="required">*</span></label>
@@ -100,8 +91,16 @@
 							</form>
 						</div>
 					</div>
-					<!-- <div class="modal-footer">
-					</div> -->
+					<div class="modal-footer">
+						<section id="main-content" class="merge-left">
+							<!-- <div class="alert alert-info fade show" id="AlertUpd"></div> -->
+							<div class="alert alert-warning alert-dismissible fade show" role="alert" id="AlertUpd">
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+						</section>
+					</div>
 				</div>
 			</div>
 		</div>

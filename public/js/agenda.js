@@ -1,3 +1,7 @@
+$('#upd #celCli').mask('(00) 0 0000-0000');
+$('#upd #valFaturar').mask('#.##0,00', {reverse: true});
+$('#upd #vlrcomdesconto').mask('#.##0,00', {reverse: true});
+
 
 /*
 	onload = function () {
@@ -7,6 +11,10 @@
 		}
 	}
 */
+function formatNumberBR(num){
+	return (new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num));
+}
+
 function formatDateBR(d){
 	// padding function
 	var s = function(p){
@@ -66,9 +74,16 @@ function GeraTabelaItens(idAgenda){
 			$(json).each(function(key, value) {
 				lista = lista + '<tr>';
 				lista = lista + '<th style="text-align:center;" scope="row">' + value.id +'</th>';
-				lista = lista + '<td style="text-align:center;" scope="row">' + value.tipo +'</td>';
-				lista = lista + '<td style="text-align:left;" scope="row">' + value.descricao + '('+value.idProdServ+')</td>';
-				lista = lista + '<td style="text-align:right;" scope="row">' + value.valor +'</td>';
+				tipo = value.tipo;
+				if (value.tipo == 'p'){
+					tipo = 'Produto';
+				}
+				if (value.tipo == 's'){
+					tipo = 'Serviço';
+				}
+				lista = lista + '<td style="text-align:center;" scope="row">' + tipo +'</td>';
+				lista = lista + '<td style="text-align:left;" scope="row">#'+value.idProdServ+' '+value.descricao + '</td>';
+				lista = lista + '<td style="text-align:right;" scope="row">' + formatNumberBR(value.valor) +'</td>';
 				lista = lista + '<td style="text-align: center"><span class="btn btn-danger btn-sm w-25 p-0" id="DelTransacao" idItemTransacao="'+value.id+'" title="Excluir '+value.id+'"><i class="far fa-trash-alt"> </span></td>';
 				somaReceita = somaReceita + parseFloat(value.valor);
 				// dados.push({id: value.id, tipo: value.tipo, descricao:value.descricao, valor:value.valor  });
@@ -79,8 +94,9 @@ function GeraTabelaItens(idAgenda){
 			lista = lista + '<td style="text-align: right"><strong>'+somaReceita+'</strong></td>';
 			lista = lista + '</tr>';
 			lista = lista + '<tr>';
-			lista = lista + '	<td colspan="3" style="text-align: right"><strong>Valor Cobrado:</strong></td>';
-			lista = lista + '	<td style="text-align:right;"> <input style="text-align:right;" class="span12" id="vlrcomdesconto" type="text" name="vlrcomdesconto" value="'+somaReceita+'"/> </td>';
+			lista = lista + '	<td colspan="3" style="text-align: right"><strong>Valor da fatura:</strong></td>';
+			lista = lista + '	<td style="text-align:right;"> <input class="form-control" style="text-align:right;" class="span12" id="vlrcomdesconto" type="text" name="vlrcomdesconto" value="'+somaReceita.toFixed(2)+'"/> </td>';
+			
 			lista = lista + '	<td style="text-align:center"> <button class="btn btn-faturar btn-info btn-sm" id="btn-faturar">Faturar</button></td>';
 			lista = lista + '</tr>';
 
@@ -293,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			url: $url,
 			data: data,
 			success:  function(json) { //json = {id: "12"}
-//				jQuery("#AlertUpd").html("Item "+json.id+" Excluído com sucesso!");
+				jQuery("#AlertUpd").html("Item "+json.id+" Excluído com sucesso!");
 				$("#AlertUpd").show();
 				$("#listaItens").html(GeraTabelaItens($('#upd #id').val()));
 			},
@@ -487,18 +503,25 @@ document.addEventListener('DOMContentLoaded', function() {
 		// debugger;
 		$.post($url, data)
 		.done(function (response) {
-			// var obj = JSON.parse(response);
-			// var myJSON = JSON.stringify(response);
-			jQuery("#AlertUpd").html(response); 
-			$("#AlertUpd").show();
-			$('#upd #NomeItem').val(''); //limpar depois de adicionar.
-			$('#upd #valFaturar').val('0.00');
-
+			obj = JSON.parse(response);
+			if (obj.id) {
+				// jQuery("#AlertUpd").html("Item "+json.id+" Excluído com sucesso!");
+				// var obj = JSON.parse(response);
+				// var myJSON = JSON.stringify(response);
+				jQuery("#AlertUpd").html("Item "+obj.id+" incluido com sucesso!"); 
+				$("#AlertUpd").show();
+				$('#upd #NomeItem').val(''); //limpar depois de adicionar.
+				$('#upd #valFaturar').val('0');
+				$('#upd #qtdFaturar').val('1');
+			}else {
+				jQuery("#AlertUpd").html(response); 
+				$("#AlertUpd").show();
+			}
 			$("#listaItens").html(GeraTabelaItens($('#upd #id').val()));
 		});
 	});
 
-	$('#upd #btn-faturar').on('click', function(e){ // add event submit
+	$('#btn-faturar').on('click', function(e){ // add event submit
 		// We don't want this to act as a link so cancel the link action
 		e.preventDefault();
 		alert('faturar');
@@ -568,11 +591,12 @@ document.addEventListener('DOMContentLoaded', function() {
 						select: function (event, ui) {
 							if (ui.item && ui.item.id) {
 								$("#NomeItem").val(ui.item.label +"(R$" +ui.item.valbase+")");
-								$("#valFaturar").val(ui.item.valbase);
+								$("#valFaturar").val(ui.item.valbase.replace(".", ","));
+								// $("#valFaturar").val(ui.item.valbase); 
 								$("#tipoReceita").val(ui.item.tipo);
 								$("#idReceita").val(ui.item.id);
-								jQuery("#AlertUpd").html("Receita Ok!"); 
-								$("#AlertUpd").show();
+								// jQuery("#AlertUpd").html("Receita Ok!"); 
+								// $("#AlertUpd").show();
 								return false;
 							}
 						},

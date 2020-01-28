@@ -257,7 +257,7 @@ class ClassTransacao extends ClassConexao{
                 FROM itenstransacao, produto
                 WHERE itenstransacao.idAgenda = $idAgenda
                 and produto.idProdt = itenstransacao.idProdt
-                ";
+                order by tipo desc, id asc";
         $result = mysqli_query($this->Db,$query);
         while($row = mysqli_fetch_assoc($result))
         {
@@ -299,7 +299,7 @@ class ClassTransacao extends ClassConexao{
 
         }else {
             $sql = "INSERT INTO `itenstransacao`(`idAgenda`, `idCli`, `idColab`, `idServ`, `idProdt`, `valor`, `descProdtServ`)
-                    VALUES ($idAgenda, $idCli, $idColab, $idServ,$idProdt, $valor,"."'".$descProdtServ."')";
+                    VALUES ($idAgenda, $idCli, $idColab, $idServ,$idProdt,".number_format(str_replace(",",".",str_replace(".","",$valor)), 2, '.', '').","."'".$descProdtServ."')";
             try {
                 if (mysqli_query($this->Db,$sql)) {
                     $return["id"] = mysqli_insert_id($this->Db);
