@@ -92,9 +92,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     success:function(data)
                     {
                         // alert(data);
-                        jQuery("#meuAlerta").html(data)
-                        // $('#meuAlerta').text(data);
-                        $("#meuAlerta").show();
+                        jQuery("#mainAlerta").html(data)
+                        // $('#mainAlerta').text(data);
+                        $("#mainAlerta").show();
                         $('#user_form')[0].reset();
                         $('#userModal').modal('hide');
                         dataTable.ajax.reload();
@@ -139,9 +139,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     success:function(data)
                     {
                         // alert(data);
-                        jQuery("#meuAlerta").html(data)
-                        // $('#meuAlerta').text(data);
-                       $("#meuAlerta").show();
+                        jQuery("#mainAlerta").html(data)
+                        // $('#mainAlerta').text(data);
+                       $("#mainAlerta").show();
                         dataTable.ajax.reload();
                     }
                 });

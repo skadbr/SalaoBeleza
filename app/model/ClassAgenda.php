@@ -6,29 +6,6 @@ use App\Model\ClassConexao;
 class ClassAgenda extends ClassConexao{
     
     private $Db;
-    protected function addAgenda($title,$start,$end,$allday,$idCli,$idColab)
-    {   
-        $this->Db = $this->conexaoDB();
-        $sql = "INSERT INTO AGENDA(
-            title ,
-            allday ,
-            start ,
-            end ,
-            idCli,
-            idColab
-            )
-            VALUES (
-            '".mysqli_real_escape_string($this->Db,$title)."',
-            '".$allday."',
-            '".mysqli_real_escape_string($this->Db,date('Y-m-d H:i:s',strtotime($start)))."',
-            '".mysqli_real_escape_string($this->Db,date('Y-m-d H:i:s',strtotime($end)))."',
-            '".mysqli_real_escape_string($this->Db,$idCli)."',
-            '".mysqli_real_escape_string($this->Db,$idColab)."'
-            )";
-//        echo $sql;
-        mysqli_query($this->Db,$sql);
-        echo '{"id":"'.mysqli_insert_id($this->Db).'"}';
-    }
 
     protected function listaEventos($start)
     {
@@ -76,47 +53,82 @@ class ClassAgenda extends ClassConexao{
         return json_encode($events);
     }
 
-    protected function atualizaEvento($id,$title,$start,$end,$idCli,$idColab)
+    protected function addAgenda($title,$start,$end,$allday,$idCli,$idColab)
     {   
         $this->Db = $this->conexaoDB();
-        
-        $sql = "UPDATE AGENDA set 
-        title = '".mysqli_real_escape_string($this->Db,$title)."', 
-        start = '".mysqli_real_escape_string($this->Db,date('Y-m-d H:i:s',strtotime($start)))."', 
-        end = '".mysqli_real_escape_string($this->Db,date('Y-m-d H:i:s',strtotime($end)))."', 
-        idCli = '".mysqli_real_escape_string($this->Db,$idCli)."', 
-        idColab = '".mysqli_real_escape_string($this->Db,$idColab)."' 
-        where id = '".mysqli_real_escape_string($this->Db,$id)."'";
-        
+        $sql = "INSERT INTO AGENDA(
+            title ,
+            allday ,
+            start ,
+            end ,
+            idCli,
+            idColab
+            )
+            VALUES (
+            '".mysqli_real_escape_string($this->Db,$title)."',
+            '".$allday."',
+            '".mysqli_real_escape_string($this->Db,date('Y-m-d H:i:s',strtotime($start)))."',
+            '".mysqli_real_escape_string($this->Db,date('Y-m-d H:i:s',strtotime($end)))."',
+            '".mysqli_real_escape_string($this->Db,$idCli)."',
+            '".mysqli_real_escape_string($this->Db,$idColab)."'
+            )";
+//        echo $sql;
+
         try {
-            $result=$this->Db->query($sql);
-            $return["affected_rows"] = $this->Db->affected_rows;
+            $this->Db->query($sql);
+            $return["insertedId"] = $this->Db->insert_id;
+            // if (mysqli_query($this->Db,$sql)){
+            //     $return["insertedId"] = mysqli_insert_id($this->Db);
+            // }else{ 
+            //     return false;
+            // };
+    
         } catch (mysqli_sql_exception $e) {
             $return["SQL"] = $sql;
             $return["Error"] = $e->errorMessage();
         }
+        return $return;
+    }
+
+        protected function atualizaEvento($id,$title,$allday,$start,$end,$idCli,$idColab)
+    {   
+        if ($id > 0) {
+            $this->Db = $this->conexaoDB();
+            $sql = "UPDATE AGENDA set 
+            title = '".mysqli_real_escape_string($this->Db,$title)."', 
+            start = '".mysqli_real_escape_string($this->Db,date('Y-m-d H:i:s',strtotime($start)))."', 
+            end = '".mysqli_real_escape_string($this->Db,date('Y-m-d H:i:s',strtotime($end)))."', 
+            idCli = '".mysqli_real_escape_string($this->Db,$idCli)."', 
+            idColab = '".mysqli_real_escape_string($this->Db,$idColab)."' 
+            where id = '".mysqli_real_escape_string($this->Db,$id)."'";
+            try {
+                $this->Db->query($sql);
+                $return["updatedId"] = $id;
+            } catch (mysqli_sql_exception $e) {
+                $return["SQL"] = $sql;
+                $return["Error"] = $e->errorMessage();
+            }
+        } else {
+            $return = $this->addAgenda($title,$start,$end,$allday,$idCli,$idColab);
+        };
         return json_encode($return);
-
-        // return '[{"affected_rows":'.$this->Db->affected_rows.'}]';
-
-        // mysqli_query($this->Db,$sql);
-        // if (mysqli_affected_rows($this->Db) > 0) {
-        //     echo mysqli_affected_rows($this->Db);
-        // }
-        //     echo mysqli_affected_rows($this->Db);
-        // exit;
     }
 
     protected function delEvento($id)
     {   
         $this->Db = $this->conexaoDB();
-        $sql="DELETE from AGENDA where id = '$id'";
-        mysqli_query($this->Db,$sql);
-        if (mysqli_affected_rows($this->Db) > 0) {
-            return "1";
+        $sql = "DELETE FROM `itenstransacao` WHERE idAgenda = $id";
+        try {
+            $this->Db->query($sql);
+            $sql="DELETE from AGENDA where id = '$id'";
+            $this->Db->query($sql);
+            $return["deletedId"] = $id;
+
+        } catch (mysqli_sql_exception $e) {
+            $return["SQL"] = $sql;
+            $return["Error"] = $e->errorMessage();
         }
-        var_dump($this->Db);
-        exit;
+        return $return;
     }
  
     public function TotalAgendamentos(){

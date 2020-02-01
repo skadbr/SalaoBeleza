@@ -99,7 +99,7 @@
             <div class="Main">
                 <section id="main-content" class="merge-left">
                     <!-- <section class="wrapper"> -->
-                    <div class="alert alert-info fade show" id="meuAlerta">
+                    <div class="alert alert-info fade show" id="mainAlerta">
                     </div>
                     <?php echo $this->addMain(); ?>
                     <!-- </session> -->

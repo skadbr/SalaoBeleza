@@ -99,6 +99,7 @@ class ClassTransacao extends ClassConexao{
 
     public function addTransacao($data,$entrada_saida,$idAgenda,$idCli,$nome,$idColab,$valor,$descTransacao)
     {
+        
         $this->Db = $this->conexaoDB();
         $sql = "INSERT INTO transacao(
                     data,
@@ -248,29 +249,45 @@ class ClassTransacao extends ClassConexao{
     public function listaItensAgenda($idAgenda) {
         $this->Db = $this->conexaoDB();
 
-        $query = "SELECT  itenstransacao.id, 's' as tipo,itenstransacao.idServ as idProdServ, servico.descr as descricao,  itenstransacao.valor
+        $query = "SELECT  itenstransacao.id, 's' as tipo,itenstransacao.idServ as idProdServ, servico.descr as descricao,  itenstransacao.qtd, itenstransacao.valor
                 FROM itenstransacao, servico
                 WHERE itenstransacao.idAgenda = $idAgenda
                 and servico.idServ = itenstransacao.idServ
                 UNION
-                SELECT itenstransacao.id, 'p' as tipo, itenstransacao.idProdt as idProdServ, produto.descricao as descricao,  itenstransacao.valor
+                SELECT itenstransacao.id, 'p' as tipo, itenstransacao.idProdt as idProdServ, produto.descricao as descricao, itenstransacao.qtd,  itenstransacao.valor
                 FROM itenstransacao, produto
                 WHERE itenstransacao.idAgenda = $idAgenda
                 and produto.idProdt = itenstransacao.idProdt
                 order by tipo desc, id asc";
-        $result = mysqli_query($this->Db,$query);
-        while($row = mysqli_fetch_assoc($result))
-        {
-            $row_set[] = $row; 
+
+        try {
+            $result = mysqli_query($this->Db,$query);
+            while($row = mysqli_fetch_assoc($result))
+            {
+                $dados[] = $row; 
+            }
+            $retorno = array();
+            if (isset($dados)){
+                $retorno["status"] = 'ok';
+                $retorno["msg"] = 'Finalizou com sucesso!';
+                $retorno["dados"] = $dados;
+            }else{
+                $retorno["status"] = 'Erro';
+                $retorno["msg"] = 'Não econtrou linhas!';
+            }
+            return $retorno;
+        } catch (mysqli_sql_exception $e) {
+            $return["SQL"] = $sql;
+            $return["Error"] = $e->errorMessage();
         }
-        if (isset($row_set)){
-            echo json_encode($row_set);
-        } else{
-            echo '["msg":"Não econtrou itens na agenda"]';
-        }
+        return $return;
+
+
+
+
     }
 
-    public function atualizaItemTransacao($idItemTransacao, $idAgenda, $idCli, $idColab, $idServ,$idProdt, $valor, $descProdtServ)
+    public function atualizaItemTransacao($idItemTransacao, $idAgenda, $idCli, $idColab, $idServ,$idProdt, $qtd, $valor, $descProdtServ)
     {
         $this->Db = $this->conexaoDB();
         if ($idItemTransacao && $idItemTransacao > 0) {
@@ -280,6 +297,7 @@ class ClassTransacao extends ClassConexao{
             `idColab`=$idColab,
             `idServ`=$idServ,
             `idProdt`=$idProdt,
+            `qtd`=$qtd,
             `valor`=$valor,
             `descProdtServ`="."'".$descProdtServ."' 
             WHERE 
@@ -298,8 +316,8 @@ class ClassTransacao extends ClassConexao{
             return $return;
 
         }else {
-            $sql = "INSERT INTO `itenstransacao`(`idAgenda`, `idCli`, `idColab`, `idServ`, `idProdt`, `valor`, `descProdtServ`)
-                    VALUES ($idAgenda, $idCli, $idColab, $idServ,$idProdt,".number_format(str_replace(",",".",str_replace(".","",$valor)), 2, '.', '').","."'".$descProdtServ."')";
+            $sql = "INSERT INTO `itenstransacao`(`idAgenda`, `idCli`, `idColab`, `idServ`, `idProdt`, `qtd`,`valor`, `descProdtServ`)
+                    VALUES ($idAgenda, $idCli, $idColab, $idServ,$idProdt,$qtd,".number_format(str_replace(",",".",str_replace(".","",$valor)), 2, '.', '').","."'".$descProdtServ."')";
             try {
                 if (mysqli_query($this->Db,$sql)) {
                     $return["id"] = mysqli_insert_id($this->Db);

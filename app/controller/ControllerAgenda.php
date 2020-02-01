@@ -20,6 +20,7 @@ class ControllerAgenda extends ClassAgenda {
     protected $idItemTransacao; 
     protected $idServ;
     protected $idProdt;
+    protected $qtdItens;
     protected $valor;
     protected $descProdtServ;
 
@@ -79,6 +80,9 @@ class ControllerAgenda extends ClassAgenda {
          if(isset($_POST["idProdt"])){
             $this->idProdt= filter_input(INPUT_POST,'idProdt', FILTER_SANITIZE_SPECIAL_CHARS);
          }
+         if(isset($_POST["qtd"])){
+            $this->qtdItens= filter_input(INPUT_POST,'qtd', FILTER_SANITIZE_SPECIAL_CHARS);
+         }
          if(isset($_POST["valor"])){
             $this->valor= filter_input(INPUT_POST,'valor', FILTER_SANITIZE_SPECIAL_CHARS);
          }
@@ -89,14 +93,14 @@ class ControllerAgenda extends ClassAgenda {
     public function SalvaItemTransacao() {
         $this->recVariaveis();
         $transacao = new ClassTransacao();
-        $retorno = $transacao->atualizaItemTransacao($this->idItemTransacao, $this->id, $this->cliId, $this->colabId, $this->idServ,$this->idProdt, $this->valor, $this->descProdtServ);
+        $retorno = $transacao->atualizaItemTransacao($this->idItemTransacao, $this->id, $this->cliId, $this->colabId, $this->idServ,$this->idProdt, $this->qtdItens, $this->valor, $this->descProdtServ);
         echo json_encode($retorno);
     }
 
     public function listaItensAgenda() {
         $this->recVariaveis();
         $transacao = new ClassTransacao();
-        echo ($transacao->listaItensAgenda($this->id));
+        echo (json_encode($transacao->listaItensAgenda($this->id)));
     }
 
     public function ExcluiItemTransacao(){
@@ -132,7 +136,7 @@ class ControllerAgenda extends ClassAgenda {
             $Cliente = new ClassCliente();
             $this->cliId = $Cliente->addCliente($this->nomeCli,$this->celCli,'');
         }
-        $retorno = $this->atualizaEvento($this->id,$this->title,$this->start,$this->end,$this->cliId,$this->colabId);
+        $retorno = parent::atualizaEvento($this->id,$this->title,$this->allday,$this->start,$this->end,$this->cliId,$this->colabId);
         echo $retorno;
     }
 

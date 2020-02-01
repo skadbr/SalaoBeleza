@@ -11,13 +11,13 @@ body {
   padding: 10;
 }
 
-.visualizar{
+/* .modalFormAgenda{
 	display: block;
 }
 
 .form{
 	display: none;
-}
+} */
 
 /* Necessário para abrir autocomplete em formulario modal */
 .ui-autocomplete{

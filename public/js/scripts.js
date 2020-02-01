@@ -145,8 +145,8 @@ function del_all() {
     "use strict";
     $(document).ready(function () {
 
-            // $("#meuAlerta").alert("close");
-        $("#meuAlerta").hide();
+            // $("#mainAlerta").alert("close");
+        $("#mainAlerta").hide();
 
         /*==Left Navigation Accordion ==*/
         if ($.fn.dcAccordion) {

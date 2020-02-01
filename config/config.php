@@ -15,7 +15,7 @@ define ('DIRCSS',DIRPAGE."public/css/");
 define ('DIRJS',DIRPAGE."public/js/");
 
 DEFINE('HOST',"localhost");
-DEFINE('DB',"meudbmvc");
+DEFINE('DB',"dbsalao");
 DEFINE('USER',"root");
 DEFINE('PASS',"");
 

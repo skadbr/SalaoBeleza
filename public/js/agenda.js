@@ -54,6 +54,57 @@ function getISODateTime(d){
 		s(d.getSeconds());
 }
 
+function AtualizarAgenda(info){
+	$("#AlertUpd").hide();
+	if (info.allDay === true) {
+		diaInteiro = 1;
+	} else {
+		diaInteiro = 0;
+	}
+	var endtime = getISODateTime(info.end);
+	var starttime = getISODateTime(info.start);
+	var mywhen = starttime + ' – ' + endtime;
+	$('#upd #diaInteiro').val(diaInteiro);
+	$('#upd #when').text(mywhen);
+	$('#upd #startTime').val(starttime);
+	$('#upd #endTime').val(endtime);
+	if (info.id){ // usuario clicou num evento já existente
+		$('#upd #id').val(info.id);
+		$('#upd #title').val(info.title);
+		$('#upd #nomeCli').val(info.extendedProps.nomeCli);
+		$('#upd #celCli').val(info.extendedProps.celCli);
+		$('#upd #nomeColab').val(info.extendedProps.nomeColab);
+		$('#upd #idCli').val(info.extendedProps.idCli);
+		$('#upd #idColab').val(info.extendedProps.idColab);
+		document.getElementById('modaltitle').innerText = 'Editar Evento ' + info.id;		
+		document.getElementById('deleteButton').style.display = "block";
+
+		itens = GeraTabelaItens($('#upd #id').val())
+	
+		$("#listaItens").html(itens);
+		$('#formItens').css("display","block");
+	} else { //evento novo
+		$('#upd #id').val(0);
+		$('#upd #title').val('');
+		$('#upd #nomeCli').val('');
+		$('#upd #celCli').val('');
+		$('#upd #nomeColab').val('');
+		$('#upd #idCli').val(0);
+		$('#upd #idColab').val(0);
+		document.getElementById('modaltitle').innerText = 'Adicionar Novo Evento';		
+		document.getElementById('deleteButton').style.display = "none";
+		$("#listaItens").html("");
+		jQuery("#AlertUpd").html("Informe os dados do cliente e colaborador");
+		$("#AlertUpd").show();
+		$('#formItens').css("display","none");
+		// jQuery("#AlertUpd").html("Adicione os itens de faturamento");
+		// $("#AlertUpd").show();
+	}
+	// $('.modalFormAgenda').css("display","block");
+	$('#modalFormAgenda').modal('show');
+
+}
+
 
 function GeraTabelaItens(idAgenda){
 	// var DIRPAGE=document.location.origin+"/SalaoBeleza/";
@@ -69,47 +120,62 @@ function GeraTabelaItens(idAgenda){
 		data: data,
 		success:  function(json) {
 			// var dados = [];
-			var lista='';
-			var somaReceita=0;
-			$(json).each(function(key, value) {
-				lista = lista + '<tr>';
-				lista = lista + '<th style="text-align:center;" scope="row">' + value.id +'</th>';
-				tipo = value.tipo;
-				if (value.tipo == 'p'){
-					tipo = 'Produto';
-				}
-				if (value.tipo == 's'){
-					tipo = 'Serviço';
-				}
-				lista = lista + '<td style="text-align:center;" scope="row">' + tipo +'</td>';
-				lista = lista + '<td style="text-align:left;" scope="row">#'+value.idProdServ+' '+value.descricao + '</td>';
-				lista = lista + '<td style="text-align:right;" scope="row">' + formatNumberBR(value.valor) +'</td>';
-				lista = lista + '<td style="text-align: center"><span class="btn btn-danger btn-sm w-25 p-0" id="DelTransacao" idItemTransacao="'+value.id+'" title="Excluir '+value.id+'"><i class="far fa-trash-alt"> </span></td>';
-				somaReceita = somaReceita + parseFloat(value.valor);
+			if (json.status == "ok"){
+				var lista='';
+				var somaReceita=0;
+				$(json.dados).each(function(key, value) {
+					lista = lista + '<tr>';
+					lista = lista + '<th style="text-align:center;" scope="row">' + value.id +'</th>';
+					tipo = value.tipo;
+					if (value.tipo == 'p'){
+						tipo = 'Produto';
+					}
+					if (value.tipo == 's'){
+						tipo = 'Serviço';
+					}
+					lista = lista + '<td style="text-align:center;" scope="row">' + tipo +'</td>';
+					lista = lista + '<td style="text-align:left;" scope="row">#'+value.idProdServ+' '+value.descricao + '</td>';
+					lista = lista + '<td style="text-align:center;" scope="row">'+value.qtd+'</td>';
+					lista = lista + '<td style="text-align:right;" scope="row">' + formatNumberBR(value.valor * value.qtd) +'</td>';
+					lista = lista + '<td style="text-align: center"><span class="btn btn-danger btn-sm w-25 p-0" id="DelTransacao" idItemTransacao="'+value.id+'" title="Excluir '+value.id+'"><i class="far fa-trash-alt"> </span></td>';
+					somaReceita = somaReceita + parseFloat(value.valor * value.qtd);
+				})
 				// dados.push({id: value.id, tipo: value.tipo, descricao:value.descricao, valor:value.valor  });
-			});
-			lista = lista + '</tr>';
-			lista = lista + '<tr>';
-			lista = lista + '<td colspan="3" style="text-align: right"><strong>Total:</strong></td>';
-			lista = lista + '<td style="text-align: right"><strong>'+somaReceita+'</strong></td>';
-			lista = lista + '</tr>';
-			lista = lista + '<tr>';
-			lista = lista + '	<td colspan="3" style="text-align: right"><strong>Valor da fatura:</strong></td>';
-			lista = lista + '	<td style="text-align:right;"> <input class="form-control" style="text-align:right;" class="span12" id="vlrcomdesconto" type="text" name="vlrcomdesconto" value="'+somaReceita.toFixed(2)+'"/> </td>';
-			
-			lista = lista + '	<td style="text-align:center"> <button class="btn btn-faturar btn-info btn-sm" id="btn-faturar">Faturar</button></td>';
-			lista = lista + '</tr>';
+				lista = lista + '</tr>';
+				lista = lista + '<tr>';
+				lista = lista + '<td colspan="4" style="text-align: right"><strong>Total:</strong></td>';
+				lista = lista + '<td style="text-align: right"><strong>'+somaReceita+'</strong></td>';
+				lista = lista + '</tr>';
+				lista = lista + '<tr>';
+				lista = lista + '	<td colspan="4" style="text-align: right"><strong>Valor da fatura:</strong></td>';
+				lista = lista + '	<td style="text-align:right;"> <input class="form-control" style="text-align:right;" class="span12" id="vlrcomdesconto" type="text" name="vlrcomdesconto" value="'+somaReceita.toFixed(2)+'"/> </td>';
+				
+				lista = lista + '	<td style="text-align:center"> <button class="btn btn-faturar btn-info btn-sm" id="btn-faturar">Faturar</button></td>';
+				lista = lista + '</tr>';
 
 
-			// var dados = JSON.parse(json);
-			// jQuery("#AlertUpd").text(lista); 
-			// $("#AlertUpd").show();
-			retorno = lista;
+				// var dados = JSON.parse(json);
+				// jQuery("#AlertUpd").text(lista); 
+				// $("#AlertUpd").show();
+				retorno = lista;
+			}else{
+				jQuery("#AlertUpd").text('Adicione os itens de faturamento'); 
+				$("#AlertUpd").show();
+				retorno = '';
+			}
 		},
 		error:  function(json) {
-		},
-		complete:  function(json) {
-		},
+			// var dados = JSON.parse(json);
+			jQuery("#AlertUpd").text(json.responseText); 
+			$("#AlertUpd").show();
+
+		}
+			// complete:  function(json) {
+		// 	// var dados = JSON.parse(json);
+		// 	jQuery("#AlertUpd").text(json.responseJSON.msg); 
+		// 	$("#AlertUpd").show();
+
+		// },
 	});
 	return retorno;
 }
@@ -179,36 +245,13 @@ document.addEventListener('DOMContentLoaded', function() {
 			// alert("id:"+id+" idcli:"+idCli+" odColab:"+idColab);
           },
 
+		select: function(info) { //Adicionar novo
+			AtualizarAgenda(info);
+		},
 
-		eventClick:  function(info) {  // when some one click on any event
-//			alert('clicou em alterar/excluir');
-			$("#AlertUpd").hide();
 
-			endtime = getISODateTime(info.event.end);
-			starttime = getISODateTime(info.event.start);
-
-			$('#view #cardheader').text("Detalhes do evento " + info.event.id);
-			$('#view #title').html(info.event.title);
-			$('#view #celCli').text(info.event.extendedProps.celCli);
-			var mywhen = starttime + ' – ' + endtime;
-			$('#view #when').text(mywhen);
-
-			$('#upd #when').text(mywhen);
-			$('#upd #id').val(info.event.id);
-			$('#upd #title').val(info.event.title);
-			$('#upd #nomeCli').val(info.event.extendedProps.nomeCli);
-			$('#upd #celCli').val(info.event.extendedProps.celCli);
-			$('#upd #nomeColab').val(info.event.extendedProps.nomeColab);
-			$('#upd #idCli').val(info.event.extendedProps.idCli);
-			$('#upd #idColab').val(info.event.extendedProps.idColab);
-//			starttime = info.event.start.toLocaleString();
-			$('#upd #startTime').val(starttime);
-			$('#upd #endTime').val(endtime);
-
-			$('#upd #id').val(info.event.id);
-			// $('#upd #modalIdTxt').text("Dados do Evento:"+info.event.id);
-			
-			$('#visualizar').modal('show');
+		eventClick:  function(info) {  //alert('clicou em alterar/excluir');
+			AtualizarAgenda(info.event);
 		},
 
 		eventDrop: function(info) {
@@ -253,25 +296,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	//			}
 		},		
 		
-		select: function(info) { //Adicionar novo
-			if (info.allDay === true) {
-				diaInteiro = 1;
-			} else {
-				diaInteiro = 0;
-	//			alert('clicou em novo');
-				endtime = getISODateTime(info.end);
-				starttime = getISODateTime(info.start);
-				var mywhen = starttime + ' – ' + endtime;
-				$('#add #startTime').val(starttime);
-				$('#add #endTime').val(endtime);
-				$('#add #when').text(mywhen);
-				$('#add #diaInteiro').val(diaInteiro);
-				$('#add #allDay').val(info.allDay);
-				$('#cadastrar').modal('show'); 
-			};
-
-		},
-
 		events: DIRPAGE+'agenda/ListaTodosEventos', 
 			// events: [                {
 			// 		id: 100,
@@ -284,20 +308,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	});
 	calendar.render();
 
-	// Abrir Editar.
-	$('#visualizar #btn-canc-vis').on("click", function(e) {
-		$('.form').slideToggle();
-		$('.visualizar').slideToggle();
-		$("#listaItens").html(GeraTabelaItens($('#upd #id').val()));
-	});
-
-	// Abrir Visualizar.
-	$('#visualizar #btn-canc-edit').on("click", function(e) {
-		$('.visualizar').slideToggle();
-		$('.form').slideToggle();
-	});
 
 	$(document).on('click', '#DelTransacao', function(event) {
+		event.preventDefault();
 		// alert('Excluir ' + idTransacao);
 		$url = DIRPAGE+"agenda/ExcluiItemTransacao";
 		var data = {};
@@ -324,45 +337,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	});
 
-	// nome do cliente autocomplete para add
-	$('#add #nomeCli').on('keyup', function() {
-        var length = $(this).val().length;
-        if (length > 1) {
-            $pesquisa = $('#add #nomeCli').val();
-			$pesquisa = DIRPAGE+'cliente/AutoComplete?nome='+$pesquisa;
-			$.getJSON($pesquisa, 
-				function(data){
-					var dados = [];
-					$(data).each(function(key, value) {
-						dados.push({label: value.nome, id: value.idCli, celular: value.celular });
-					});
-					$('#add #nomeCli').autocomplete({ 
-						source: dados,
-						minLength: 1,
-						select: function (event, ui) {
-							if (ui.item && ui.item.id) {
-								$("#add #nomeCli").val(ui.item.label);
-								$("#add #cliId").val(ui.item.id);
-								$("#add #celCli").val(ui.item.celular);
-								$("#add  #title").text($("#add #nomeColab").val()+"/"+$("#add #nomeCli").val());
-								return false;
-							}   
-						},
-					});
-				}
-				// .autocomplete( "instance" )._renderItem = function( ul, item ) {
-				//     return $( "<li>" )
-				// .append( "<div>" + item.label + "<br>" + item.desc + "</div>" )
-				// .appendTo( ul );
-				// }
-			) //getJSON
-        };
-		$("#add #title").text($("#add #nomeColab").val()+"/"+$("#add #nomeCli").val());
-    });
-
 	// nome do cliente autocomplete para update/delete
 	$('#upd #nomeCli').on('keyup', function() {
-		$('#upd #idCli').val("0");
         var length = $(this).val().length;
         if (length > 1) {
             $pesquisa = $('#upd #nomeCli').val();
@@ -375,6 +351,15 @@ document.addEventListener('DOMContentLoaded', function() {
 					$(data).each(function(key, value) {
 						dados.push({label: value.nome, id: value.idCli, celular: value.celular });
 					});
+					if (dados.length == 1){
+						if (dados[0].label  !== $('#upd #nomeCli').val()){
+							$('#upd #idCli').val(0);
+							$('#upd #celCli').val("");
+						}else{
+							$('#upd #idCli').val(dados[0].id);
+							$('#upd #celCli').val(dados[0].celular);
+						};
+					};
 					$('#upd #nomeCli').autocomplete({ 
 						source: dados,
 						// minLength: 1,
@@ -391,56 +376,14 @@ document.addEventListener('DOMContentLoaded', function() {
 						},
 					});
 				}
-				// .autocomplete( "instance" )._renderItem = function( ul, item ) {
-				//     return $( "<li>" )
-				// .append( "<div>" + item.label + "<br>" + item.desc + "</div>" )
-				// .appendTo( ul );
-				// }
 			) //getJSON
         };
 		$("#upd #title").val($("#upd #nomeColab").val()+"/"+$("#upd #nomeCli").val());
     });
 
 
-
-	// nome do colaboradro autocomplete para add
-	$('#add #nomeColab').on('keyup', function() {
-        var length = $(this).val().length;
-        if (length > 1) {
-            $pesquisa = $('#add #nomeColab').val();
-			$pesquisa = DIRPAGE+'colaborador/AutoComplete?nome='+$pesquisa;
-			$.getJSON($pesquisa, 
-				function(data){
-					var dados = [];
-					$(data).each(function(key, value) {
-						dados.push({label: value.nome, id: value.idColab });
-					});
-					$('#add #nomeColab').autocomplete({ 
-						source: dados,
-						// minLength: 1,
-						select: function (event, ui) {
-							if (ui.item && ui.item.id) {
-								$("#add #nomeColab").val(ui.item.label);
-								$("#add #colabId").val(ui.item.id);
-								$("#add #title").text($("#add #nomeColab").val()+"/"+$("#add #nomeCli").val());
-								return false;
-							}   
-						},
-					});
-				}
-				// .autocomplete( "instance" )._renderItem = function( ul, item ) {
-				//     return $( "<li>" )
-				// .append( "<div>" + item.label + "<br>" + item.desc + "</div>" )
-				// .appendTo( ul );
-				// }
-			) //getJSON
-        };
-		$("#add #title").text($("#add #nomeColab").val()+"/"+$("#add #nomeCli").val());
-    });
-
 	// nome do colaboradro autocomplete para update/delete
 	$('#upd #nomeColab').on('keyup', function() {
-		$('#upd #idColab').val("0");
         var length = $(this).val().length;
         if (length > 1) {
             $pesquisa = $('#upd #nomeColab').val();
@@ -451,6 +394,13 @@ document.addEventListener('DOMContentLoaded', function() {
 					$(data).each(function(key, value) {
 						dados.push({label: value.nome, id: value.idColab });
 					});
+					if (dados.length == 1){
+						if (dados[0].label  !== $('#upd #nomeColab').val()){
+							$('#upd #idColab').val(0);
+						}else{
+							$('#upd #idColab').val(dados[0].id);
+						};
+					};
 					$('#upd #nomeColab').autocomplete({ 
 						source: dados,
 						// minLength: 1,
@@ -478,8 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 
 	
-	$('#btn-AddItens').on('click', function(e){ // add event submit
-		// We don't want this to act as a link so cancel the link action
+	$('#btn-AddItens').on('click', function(e){ 
 		e.preventDefault();
 		// alert('Additens');
 	 	$url = DIRPAGE+"agenda/SalvaItemTransacao";
@@ -488,14 +437,15 @@ document.addEventListener('DOMContentLoaded', function() {
 		data.id = $('#upd #id').val(); 
 		data.cliId = $('#upd #idCli').val(); 
 		data.colabId  = $('#upd #idColab').val(); 
-		if ($('#upd #tipoReceita').val() == 's'){
-			data.idServ = $('#upd #idReceita').val();  
+		if ($('#formItens  #tipoReceita').val() == 's'){
+			data.idServ = $('#formItens  #idReceita').val();  
 			data.idProdt = 0;
 		} else {
 			data.idServ = 0  
-			data.idProdt = $('#upd #idReceita').val(); 
+			data.idProdt = $('#formItens #idReceita').val(); 
 		}
-		data.valor =  $('#upd #valFaturar').val();
+		data.valor =  $('#formItens #valFaturar').val();
+		data.qtd =  $('#formItens #qtdFaturar').val();
 		data.descProdtServ = "Agendamento " + $('#upd #title').val(); 
 		// $("#tipoReceita").val();
 		// $("#idReceita").val();
@@ -505,14 +455,11 @@ document.addEventListener('DOMContentLoaded', function() {
 		.done(function (response) {
 			obj = JSON.parse(response);
 			if (obj.id) {
-				// jQuery("#AlertUpd").html("Item "+json.id+" Excluído com sucesso!");
-				// var obj = JSON.parse(response);
-				// var myJSON = JSON.stringify(response);
-				jQuery("#AlertUpd").html("Item "+obj.id+" incluido com sucesso!"); 
+				jQuery("#AlertUpd").html("Item "+obj.id+" incluido com sucesso!");
 				$("#AlertUpd").show();
-				$('#upd #NomeItem').val(''); //limpar depois de adicionar.
-				$('#upd #valFaturar').val('0');
-				$('#upd #qtdFaturar').val('1');
+				$('#formItens #NomeItem').val(''); //limpar depois de adicionar.
+				$('#formItens #valFaturar').val('');
+				$('#formItens #qtdFaturar').val('1');
 			}else {
 				jQuery("#AlertUpd").html(response); 
 				$("#AlertUpd").show();
@@ -521,34 +468,40 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	});
 
-	$('#btn-faturar').on('click', function(e){ // add event submit
-		// We don't want this to act as a link so cancel the link action
-		e.preventDefault();
-		alert('faturar');
-	//	window.open("transacao","janela1","width=800,height=600,directories=no,location=no,menubar=no,scrollbars=no,status=no,toolbar=no,resizable=no");
-
+	$(document).on('click', '#btn-faturar', function(event) {
+		event.preventDefault();
+		jQuery("#AlertUpd").html("Faturar R$ "+$('#upd #vlrcomdesconto').val());
+		$("#AlertUpd").show();
 	});
 	
-
-
-	$('#add #addButton').on('click', function(e){ // add event submit
-		// We don't want this to act as a link so cancel the link action
-		e.preventDefault();
-		var nomeCli = $('#add #nomeCli').val();
-		var nomeColab = $('#add #nomeColab').val();
-        if(nomeCli != '' && nomeColab != '') {
-			var idColab = $('#add #colabId').val();
-			if (idColab > 0){
-				doSubmit(); // send to form submit function
-			} else {
-				alert('Escolha um colaborador cadastrado!');
-			}
-		} else {
-			alert('Informe Cliente e Colaborador!');
-		}
+	$("#modalFormAgenda").on("hide.bs.modal", function () {
+		$(this)
+		.find("input,textarea,select")
+		   .val('')
+		   .end()
+		.find("input[type=checkbox], input[type=radio]")
+		   .prop("checked", "")
+		   .end();		// put your default event here
 	});
-		
-	$('#upd #updateButton').on('click', function(e){ // update event clicked
+
+
+	
+	// $("#modalFormAgenda").on("show.bs.modal", function() {
+	// 	if ($('#upd #id').val() > 0) {
+	// 		jQuery("#mainAlerta").html("Insira os itens de faturamento");
+	// 		$("#mainAlerta").show();
+	// 		$('#formItens').css("display","block");
+	// 		// document.getElementById("btn-AddItens").disabled = false;
+	// 	}else {
+	// 		jQuery("#mainAlerta").html("Informe os dados do cliente e colaborador");
+	// 		$("#mainAlerta").show();
+	// 		$('#formItens').css("display","none");
+	// 		// document.getElementById("btn-AddItens").disabled = true;
+	// 	} //display: block
+	// });
+	
+
+	$('.modal-content #updateButton').on('click', function(e){ // update event clicked
 		// We don't want this to act as a link so cancel the link action
 		e.preventDefault();
 		var nomeCli = $('#upd #nomeCli').val();
@@ -566,17 +519,17 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	});
 
-	$('#upd #deleteButton').on('click', function(e){ // delete event clicked
+	$('#formItens #deleteButton').on('click', function(e){ // delete event clicked
 		// We don't want this to act as a link so cancel the link action
 		e.preventDefault();
 		doDelete(); //send data to delete function
 	});
 
 
-	$('#NomeItem').on('keyup', function() {
+	$('#formItens #NomeItem').on('keyup', function() {
         var length = $(this).val().length;
         if (length > 1) {
-            $pesquisa = $('#NomeItem').val();
+            $pesquisa = $('#formItens #NomeItem').val();
 			$pesquisa = DIRPAGE+'transacao/AutoComplete?search='+$pesquisa;
 			$.getJSON($pesquisa, 
 				function(data){
@@ -585,16 +538,16 @@ document.addEventListener('DOMContentLoaded', function() {
 						dados.push({id: value.id, tipo: value.tipo, label: value.descr, valbase: value.valbase });
 						// dados.push({label: value.descr, id: value.id });
 					});
-					$('#NomeItem').autocomplete({ 
+					$('#formItens #NomeItem').autocomplete({ 
 						source: dados,
 						// minLength: 1,
 						select: function (event, ui) {
 							if (ui.item && ui.item.id) {
-								$("#NomeItem").val(ui.item.label +"(R$" +ui.item.valbase+")");
-								$("#valFaturar").val(ui.item.valbase.replace(".", ","));
+								$("#formItens #NomeItem").val(ui.item.label +"(R$" +ui.item.valbase+")");
+								$("#formItens #valFaturar").val(ui.item.valbase.replace(".", ","));
 								// $("#valFaturar").val(ui.item.valbase); 
-								$("#tipoReceita").val(ui.item.tipo);
-								$("#idReceita").val(ui.item.id);
+								$("#formItens #tipoReceita").val(ui.item.tipo);
+								$("#formItens #idReceita").val(ui.item.id);
 								// jQuery("#AlertUpd").html("Receita Ok!"); 
 								// $("#AlertUpd").show();
 								return false;
@@ -608,7 +561,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 	function doDelete(){  // delete event 
-		$("#visualizar").modal('hide');
 		var eventID = $('#upd #id').val();
 //		alert(eventID);
 		$.ajax({
@@ -619,8 +571,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				if(json == 1) {
 					var event = calendar.getEventById( eventID );
 					event.remove()	;
-					jQuery("#meuAlerta").html("Agenda Excluído com sucesso!");
-					$("#meuAlerta").show();
+					$("#modalFormAgenda").modal('hide');
+					jQuery("#mainAlerta").html("Agenda Excluído com sucesso!");
+					$("#mainAlerta").show();
 				} else {
 					return false;
 				}
@@ -629,17 +582,18 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 
 	function doUpdate(){  // update event 
-		// $("#visualizar").modal('hide');
+		// $("#modalFormAgenda").modal('hide');
 		var eventID = $('#upd #id').val();
 		var startTime = $('#upd #startTime').val();
 		var endTime   = $('#upd #endTime').val();
+		var diaInteiro = $('#upd #diaInteiro').val();
 		var nomeCli  = $('#upd #nomeCli').val();
 		var DescEvento  = $('#upd #title').val();
 		var cliId  = $('#upd #idCli').val();
 		var celCli  = $('#upd #celCli').val();
 		var colabId  = $('#upd #idColab').val();
 
-		var Dados = 'id='+eventID+'&title='+DescEvento+'&start='+startTime+'&end='+endTime+'&cliId='+cliId+'&nomeCli='+nomeCli+'&celCli='+celCli+'&colabId='+colabId;
+		var Dados = 'id='+eventID+'&title='+DescEvento+'&allday='+diaInteiro  +'&start='+startTime+'&end='+endTime+'&cliId='+cliId+'&nomeCli='+nomeCli+'&celCli='+celCli+'&colabId='+colabId;
 		// alert("atualizar\n"+Dados);
 		$.ajax({
 			url: DIRPAGE+'agenda/atualizar',
@@ -651,9 +605,15 @@ document.addEventListener('DOMContentLoaded', function() {
 				$("#AlertUpd").show();
 			},
 			success: function(retorno) {
-				// jQuery("#AlertUpd").html(retorno["affected_rows"]);
-				jQuery("#AlertUpd").html("Agenda alterado com sucesso!");
+				if (retorno.insertedId) {
+					jQuery("#AlertUpd").html("Agenda #" +retorno.insertedId+" gravada com sucesso!");
+				}
+				if (retorno.updatedId) {
+					jQuery("#AlertUpd").html("Agenda #" +retorno.updatedId+" atualizada com sucesso!");
+				}
+				document.getElementById("btn-AddItens").disabled = false;
 				$("#AlertUpd").show();
+				$('#formItens').css("display","block");
 				// if(retorno["affected_rows"] == 1) { //comentado pois mesmo que usuario não altere nada, devemos fazer o refetch pois pode ser que o usuario tenha alterado o nome do usuario ou o telefone.
 					calendar.unselect();
 					calendar.refetchEvents();
@@ -664,54 +624,4 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 
-	function doSubmit(){ // add event
-		$("#cadastrar").modal('hide');
-		var title = $('#add #title').text();
-		var startTime = $('#add #startTime').val();
-		var endTime = $('#add #endTime').val();
-		var diaInteiro = $('#add #diaInteiro').val();
-		var cliId = $('#add #cliId').val();
-		var nomeCli = $('#add #nomeCli').val();
-		var celCli = $('#add #celCli').val();
-		var colabId = $('#add #colabId').val();
-		
-		var data = 'title='+ encodeURIComponent(title)  
-				+ '&start='+ encodeURIComponent(startTime)
-				+ '&end='+ encodeURIComponent(endTime)
-				+ '&allday='+ encodeURIComponent(diaInteiro)
-				+ '&cliId='+ encodeURIComponent(cliId)
-				+ '&nomeCli='+ encodeURIComponent(nomeCli)
-				+ '&celCli=' + encodeURIComponent(celCli)
-				+ '&colabId='+ encodeURIComponent(colabId);
-		$.ajax({
-			url: DIRPAGE+'agenda/cadastrar',
-			data: data,
-			type: "POST",
-			success: function(json) {
-					jQuery("#meuAlerta").html("Evento cadastrado com sucesso!");
-					$("#meuAlerta").show();
-
-					// calendar.addEvent({	
-					// 	id: json.id,
-					// 	title: title,
-					// 	start: startTime,
-					// 	end: endTime,
-					// 	allDay: allDay,
-					// 	idCli: cliId,
-					// 	idColab: colabId
-					// });
-					// var event = calendar.getEventById( json.id );
-					// event.setExtendedProp(idCli, cliId );
-					// event.setExtendedProp( idColab, colabId);
-					$('#add #title').text(''); //limpar depois de adicionar.
-					$('#add #cliId').val('0'); //limpar depois de adicionar.
-					$('#add #colabId').val('0'); //limpar depois de adicionar.
-					$('#add #nomeCli').val(''); //limpar depois de adicionar.
-					$('#add #celCli').val(''); //limpar depois de adicionar.
-					$('#add #nomeColab').val(''); //limpar depois de adicionar.
-					calendar.unselect();
-					calendar.refetchEvents();
-				}
-		});
-	}	
 });

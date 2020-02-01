@@ -152,12 +152,12 @@ document.addEventListener('DOMContentLoaded', function() {
 			url: DIRPAGE+"transacao/buscar",
 			success:function(data)
 			{
-				jQuery("#meuAlerta").html(data)
-				$("#meuAlerta").show();
+				jQuery("#mainAlerta").html(data)
+				$("#mainAlerta").show();
 			},
 			error: function(err){  // error handling
-					jQuery("#meuAlerta").html(err["responseText"]);
-					$("#meuAlerta").show();
+					jQuery("#mainAlerta").html(err["responseText"]);
+					$("#mainAlerta").show();
 				console.log("error", err);
 				},	
 
@@ -255,14 +255,14 @@ document.addEventListener('DOMContentLoaded', function() {
 				// contentType:false,
 				// processData:false,
 				error:function(e){
-					jQuery("#meuAlerta").html(e["responseText"]);
-					$("#meuAlerta").show();
+					jQuery("#mainAlerta").html(e["responseText"]);
+					$("#mainAlerta").show();
 				},
 				success:function(data)
 				{
 //					alert(data);
-					jQuery("#meuAlerta").html(data)
-					$("#meuAlerta").show();
+					jQuery("#mainAlerta").html(data)
+					$("#mainAlerta").show();
 					$('#user_form')[0].reset();
 					$('#userModal').modal('hide');
 					dataTable.ajax.reload();
@@ -325,8 +325,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				success:function(data)
 				{
 					// alert(data);
-					jQuery("#meuAlerta").html(data)
-					$("#meuAlerta").show();
+					jQuery("#mainAlerta").html(data)
+					$("#mainAlerta").show();
 					dataTable.ajax.reload();
 				}
 			});
