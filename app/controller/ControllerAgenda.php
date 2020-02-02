@@ -144,7 +144,7 @@ class ControllerAgenda extends ClassAgenda {
     public function excluirEvento()
     {
         $this->recVariaveis();
-        echo($this->delEvento($this->id));
+        echo(json_encode(parent::delEvento($this->id)));
     }
 
     #chamar método ListaTodosEventos da ClassAgenda

@@ -7,7 +7,7 @@
 										<small  class="form-text text-muted">Digite o nome do produto ou serviço</small>
 										</div>
 										<div class="col-sm-3">
-											<input  class="form-control" style="text-align:right;" class="span12" id="valFaturar" type="text" value="R$ 0,00"/>
+											<input  class="form-control money-mask" style="text-align:right;" class="span12" id="valFaturar" type="text" value="R$ 0,00"/>
 											<small  class="form-text text-muted">Valor que será cobrado</small>
 										</div>
 										<div class="col-sm-1">
@@ -33,9 +33,8 @@
 												<th scope="col" style="text-align:center;">Produto/Serviço</th>
 												<th scope="col" style="text-align:left;">Item</th>
 												<th scope="col" style="text-align:center;">Qtd</th>
-												<th scope="col" style="text-align:right;">R$</th>
+												<th scope="col" style="text-align:right;">Total Item</th>
 												<th scope="col" style="text-align:center;">Ação</th>
-												</tr>
 											</thead>
 											<tbody id="listaItens">
 											</tbody>

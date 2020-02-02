@@ -116,7 +116,12 @@ class ClassAgenda extends ClassConexao{
 
     protected function delEvento($id)
     {   
+
         $this->Db = $this->conexaoDB();
+
+        // $driver = new mysqli_driver();
+        // $driver->report_mode = MYSQLI_REPORT_STRICT;
+
         $sql = "DELETE FROM `itenstransacao` WHERE idAgenda = $id";
         try {
             $this->Db->query($sql);

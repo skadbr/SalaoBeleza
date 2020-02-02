@@ -36,7 +36,7 @@
 										<input id="nomeCli" class="form-control" type="text" name="nomeCli" value=""  />
 									</div>
 									<div class="col-sm-4">
-										<input type="text" class="form-control" id="celCli" name="celCli" placeholder="Celular">
+										<input type="text" class="form-control phone-mask"  id="celCli" name="celCli" placeholder="Celular">
 									</div>
 								</div>
 								<div class="form-group row">
@@ -84,59 +84,7 @@
 				</div>
 			</div>
 		</div>
-		
-		<!--Formulario para Adicionar -->
-        <!-- <div class="modal fade" id="cadastrar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" data-backdrop="static">
-			<div class="modal-dialog  modal-lg" role="document">
-				<div class="modal-content" id="add">
-					<div class="modal-header">
-						<h6 class="modal-title text-center">Agendar Serviço</h6>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					</div>
-					<div class="modal-body">
-						<form class="form-horizontal" method="POST" action="">
-							<div class="form-group row">
-								<label for="titulo" class="col-sm-2 control-label" >Titulo</label>
-								<div class="col-sm-9">
-									<input type="text" class="form-control" id="title" name="title" readonly placeholder="Colaborador/Cliente">
-									<small id="when" class="form-text text-muted">texto</small>
-								</div>
-							</div>
-							<div class="form-group row">
-								<label for="NomeCliente" class="col-sm-2 control-label">Cliente<span class="required">*</span></label>
-								<div class="col-sm-6">
-									<input type="text" class="form-control" id="nomeCli" name="nomeCli" placeholder="Nome">
-									<small class="form-text text-muted"></small>
-								</div>
-								<div class="col-sm-4">
-									<input type="text" class="form-control" id="celCli" name="celCli" placeholder="Celular">
-									<small  class="form-text text-muted"></small>
-								</div>
-							</div>
-                            <div class="form-group row">
-								<label for="NomeColaborador" class="col-sm-2 control-label">Colaborador<span class="required">*</span></label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="nomeColab" name="nomeColab" placeholder="Nome">
-                                    <h5> <small  class="form-text text-muted"></small> </h5>
-                                </div>
-                            </div>
-                            <input type="text" id="title"/>
-                            <input type="hidden" id="cliId"/>
-                            <input type="hidden" id="colabId"/>
-                            <input type="hidden" id="startTime"/>
-                            <input type="hidden" id="endTime"/>
-                            <input type="hidden" id="allDay"/>
-                            <input type="hidden" id="diaInteiro"/>
-							<div class="form-group row">
-                                <div class="col-sm-offset-2 col-sm-12">
-                                    <button type="submit" class="btn btn-success btn-sm" id="addButton">Cadastrar</button>
-                                </div>
-                            </div>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div> -->
+
     </section>
 
 	<section> <!-- Formularios Modal -->

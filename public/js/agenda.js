@@ -1,7 +1,3 @@
-$('#upd #celCli').mask('(00) 0 0000-0000');
-$('#upd #valFaturar').mask('#.##0,00', {reverse: true});
-$('#upd #vlrcomdesconto').mask('#.##0,00', {reverse: true});
-
 
 /*
 	onload = function () {
@@ -77,7 +73,7 @@ function AtualizarAgenda(info){
 		$('#upd #idCli').val(info.extendedProps.idCli);
 		$('#upd #idColab').val(info.extendedProps.idColab);
 		document.getElementById('modaltitle').innerText = 'Editar Evento ' + info.id;		
-		document.getElementById('deleteButton').style.display = "block";
+		// document.getElementById('deleteButton').style.display = "block";
 
 		itens = GeraTabelaItens($('#upd #id').val())
 	
@@ -92,7 +88,7 @@ function AtualizarAgenda(info){
 		$('#upd #idCli').val(0);
 		$('#upd #idColab').val(0);
 		document.getElementById('modaltitle').innerText = 'Adicionar Novo Evento';		
-		document.getElementById('deleteButton').style.display = "none";
+		// document.getElementById('deleteButton').style.display = "none";
 		$("#listaItens").html("");
 		jQuery("#AlertUpd").html("Informe os dados do cliente e colaborador");
 		$("#AlertUpd").show();
@@ -121,6 +117,7 @@ function GeraTabelaItens(idAgenda){
 		success:  function(json) {
 			// var dados = [];
 			if (json.status == "ok"){
+				// var lista='<script> $(".money-mask").mask("#.##0,00",{reverse:!0}); </script> \n';
 				var lista='';
 				var somaReceita=0;
 				$(json.dados).each(function(key, value) {
@@ -142,14 +139,13 @@ function GeraTabelaItens(idAgenda){
 				})
 				// dados.push({id: value.id, tipo: value.tipo, descricao:value.descricao, valor:value.valor  });
 				lista = lista + '</tr>';
+				// lista = lista + '<tr>';
+				// lista = lista + '<td colspan="4" style="text-align: right"><strong>Total:</strong></td>';
+				// lista = lista + '<td style="text-align: right"><strong>'+formatNumberBR(somaReceita)+'</strong></td>';
+				// lista = lista + '</tr>';
 				lista = lista + '<tr>';
-				lista = lista + '<td colspan="4" style="text-align: right"><strong>Total:</strong></td>';
-				lista = lista + '<td style="text-align: right"><strong>'+somaReceita+'</strong></td>';
-				lista = lista + '</tr>';
-				lista = lista + '<tr>';
-				lista = lista + '	<td colspan="4" style="text-align: right"><strong>Valor da fatura:</strong></td>';
-				lista = lista + '	<td style="text-align:right;"> <input class="form-control" style="text-align:right;" class="span12" id="vlrcomdesconto" type="text" name="vlrcomdesconto" value="'+somaReceita.toFixed(2)+'"/> </td>';
-				
+				lista = lista + '	<td colspan="4" style="text-align: right"><strong>Total Faturar:</strong></td>';
+			    lista = lista + '	<td> <input class="form-control money-mask" style="text-align:right;" class="span12" id="TotalValFaturar" type="text" value="'+formatNumberBR(somaReceita.toFixed(2))+'"/> </td>';
 				lista = lista + '	<td style="text-align:center"> <button class="btn btn-faturar btn-info btn-sm" id="btn-faturar">Faturar</button></td>';
 				lista = lista + '</tr>';
 
@@ -183,7 +179,8 @@ function GeraTabelaItens(idAgenda){
 
 
 
-//$(document).ready(function(){
+
+
 document.addEventListener('DOMContentLoaded', function() {
 
 	var DIRPAGE=document.location.origin+"/SalaoBeleza/";
@@ -307,6 +304,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	});
 	calendar.render();
+
+    $("#modalFormAgenda").on('shown.bs.modal', function(){
+		$(".date-mask").mask("00/00/0000");
+		$(".time-mask").mask("00:00:00");
+		$(".date-time-mask").mask("00/00/0000 00:00:00");
+		$(".cep-mask").mask("00000-000");
+		$(".phone-mask").mask("0000-0000");
+		$(".phone-ddd-mask").mask("(00) 0000-0000");
+		$(".cel-sp-mask").mask("(00) 00009-0000");
+		$(".mixed-mask").mask("AAA 000-S0S");
+		$(".cpf-mask").mask("000.000.000-00",{reverse:!0});
+		$(".money-mask").mask("#.##0,00",{reverse:!0});
+		if ($('#upd #id').val() > 0) {
+			$('#modalFormAgenda').find('#formItens #NomeItem').focus();
+		} else {
+			$('#modalFormAgenda').find('#upd #nomeCli').focus();
+		}
+		$('#formItens #qtdFaturar').val('1');		
+	});
 
 
 	$(document).on('click', '#DelTransacao', function(event) {
@@ -465,13 +481,16 @@ document.addEventListener('DOMContentLoaded', function() {
 				$("#AlertUpd").show();
 			}
 			$("#listaItens").html(GeraTabelaItens($('#upd #id').val()));
+			$('#modalFormAgenda').find('#formItens #NomeItem').focus();
 		});
 	});
 
 	$(document).on('click', '#btn-faturar', function(event) {
 		event.preventDefault();
-		jQuery("#AlertUpd").html("Faturar R$ "+$('#upd #vlrcomdesconto').val());
+		jQuery("#AlertUpd").html("Faturar R$ "+$('#formItens #TotalValFaturar').val());
 		$("#AlertUpd").show();
+		// ajax para faturar aqui, dpeois zerar TotalValFaturar
+		// $('#formItens #TotalValFaturar').val(0);
 	});
 	
 	$("#modalFormAgenda").on("hide.bs.modal", function () {
@@ -519,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	});
 
-	$('#formItens #deleteButton').on('click', function(e){ // delete event clicked
+	$('#deleteButton').on('click', function(e){ // delete event clicked
 		// We don't want this to act as a link so cancel the link action
 		e.preventDefault();
 		doDelete(); //send data to delete function
@@ -567,17 +586,28 @@ document.addEventListener('DOMContentLoaded', function() {
 			url: DIRPAGE+'agenda/excluirEvento',
 			data: 'id='+eventID,
 			type: "POST",
+			error: function(e) {
+				jQuery("#AlertUpd").html(e["responseText"]);
+				$("#AlertUpd").show();
+			},
 			success: function(json) {
-				if(json == 1) {
+				obj = JSON.parse(json);
+				if(obj.deletedId) {
 					var event = calendar.getEventById( eventID );
 					event.remove()	;
-					$("#modalFormAgenda").modal('hide');
-					jQuery("#mainAlerta").html("Agenda Excluído com sucesso!");
+					jQuery("#mainAlerta").html("Agenda #"+eventID+" excluído com sucesso!");
 					$("#mainAlerta").show();
 				} else {
-					return false;
+					jQuery("#mainAlerta").html("Agenda #"+eventID+" Algo errado ocorreu!");
+					$("#mainAlerta").show();
 				}
+				$("#modalFormAgenda").modal('hide');
+
 			}
+			// complete:  function(json) {
+			// 	jQuery("#mainAlerta").html("Agenda #"+eventID+" algum problema!");
+			// 	$("#mainAlerta").show();
+			// }
 		});
 	}
 
