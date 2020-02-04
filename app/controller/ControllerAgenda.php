@@ -111,19 +111,22 @@ class ControllerAgenda extends ClassAgenda {
 
 
     #chamar método cadastrar da ClassAgenda         
-    public function cadastrar()
-    {
+    public function cadastrar()    {
 //        header('Content-Type: application/json');
 //        console.log($_POST);
+        $status = true;
         $this->recVariaveis();
-        if (!is_numeric($this->cliId) || !($this->cliId > 0)) {
+        if (!is_numeric($this->cliId) || !($this->cliId > 0)) { //é um novo cliente
             $Cliente = new ClassCliente();
-            $this->cliId = $Cliente->addCliente($this->nomeCli,$this->celCli,'');
+            $status = $Cliente->addCliente($this->nomeCli,$this->celCli,'');
+            if ($status["insertedId"]) {
+                $this->cliId = $status["insertedId"];
+            }else{
+                return $status;
+            }
         }
-        if (is_numeric($this->cliId) && ($this->cliId > 0)) {
-            $retorno= ($this->addAgenda($this->title,$this->start,$this->end,$this->allday,$this->cliId,$this->colabId));
-            echo $retorno;
-        }
+        $retorno= ($this->addAgenda($this->title,$this->start,$this->end,$this->allday,$this->cliId,$this->colabId));
+        echo $retorno;
     }
     
     public function atualizar()
@@ -132,9 +135,17 @@ class ControllerAgenda extends ClassAgenda {
         if (is_numeric($this->cliId) && ($this->cliId > 0)) {
             $Cliente = new ClassCliente();
             $status = $Cliente->updClienteNomeCel($this->cliId,$this->nomeCli,$this->celCli);
+            if (!$status["updatedId"]) {
+                return $status;
+            }
         } else {
             $Cliente = new ClassCliente();
-            $this->cliId = $Cliente->addCliente($this->nomeCli,$this->celCli,'');
+            $status = $Cliente->addCliente($this->nomeCli,$this->celCli,'');
+            if (isset($status["insertedId"])) {
+                $this->cliId = $status["insertedId"];
+            }else{
+                return $status;
+            }
         }
         $retorno = parent::atualizaEvento($this->id,$this->title,$this->allday,$this->start,$this->end,$this->cliId,$this->colabId);
         echo $retorno;

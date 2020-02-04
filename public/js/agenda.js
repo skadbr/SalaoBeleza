@@ -197,16 +197,15 @@ document.addEventListener('DOMContentLoaded', function() {
 			right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
 		},
 		views: {
-			listMonth: { buttonText: 'Agendados' }
+			listMonth: { buttonText: 'Agendados' },
 		},
 //		defaultDate: '<?php echo date('Y-m-d'); ?>',
 		minTime: '08:00:00',
 		maxTime: '19:00:00',
 		contentHeight: 'auto', //Ajustar conform minTime e Maxtime
 //		aspectRatio: 1.3 ,
-
+		allDayText: 'Vendas ou\nPagamentos',
 		defaultView: 'timeGridDay',
-		locale: initialLocaleCode,
 		buttonIcons: false, // show the prev/next text
 		weekNumbers: false,
 		navLinks: true, // can click day/week names to navigate views
@@ -490,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		jQuery("#AlertUpd").html("Faturar R$ "+$('#formItens #TotalValFaturar').val());
 		$("#AlertUpd").show();
 		// ajax para faturar aqui, dpeois zerar TotalValFaturar
-		// $('#formItens #TotalValFaturar').val(0);
+			// $('#formItens #TotalValFaturar').val(0);
 	});
 	
 	$("#modalFormAgenda").on("hide.bs.modal", function () {
@@ -634,14 +633,22 @@ document.addEventListener('DOMContentLoaded', function() {
 				jQuery("#AlertUpd").html(e["responseText"]);
 				$("#AlertUpd").show();
 			},
+			// .done(function (response) {
 			success: function(retorno) {
-				if (retorno.insertedId) {
-					jQuery("#AlertUpd").html("Agenda #" +retorno.insertedId+" gravada com sucesso!");
+				if (retorno.responseJSON.Error) {
+					jQuery("#AlertUpd").html(retorno.Error);
+					$("#AlertUpd").show();
+					return false;
+				} 
+				if (retorno.responseJSON.insertedId) {
+					jQuery("#AlertUpd").html("Agenda #" +retorno.responseJSON.insertedId+" gravada com sucesso!");
+					$('#upd #id').val(retorno.insertedId);
+
 				}
-				if (retorno.updatedId) {
-					jQuery("#AlertUpd").html("Agenda #" +retorno.updatedId+" atualizada com sucesso!");
-				}
-				document.getElementById("btn-AddItens").disabled = false;
+				if (retorno.responseJSON.updatedId) {
+					jQuery("#AlertUpd").html("Agenda #" +retorno.responseJSON.updatedId+" atualizada com sucesso!");
+				} 
+				// document.getElementById("btn-AddItens").disabled = false;
 				$("#AlertUpd").show();
 				$('#formItens').css("display","block");
 				// if(retorno["affected_rows"] == 1) { //comentado pois mesmo que usuario não altere nada, devemos fazer o refetch pois pode ser que o usuario tenha alterado o nome do usuario ou o telefone.

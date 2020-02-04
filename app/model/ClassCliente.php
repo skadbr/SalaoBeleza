@@ -126,6 +126,10 @@ class ClassCliente extends ClassConexao{
 
     public function addCliente($nome,$celular,$imagem)
     {
+        if (strlen($nome) < 3){
+            $return["Error"] = "Nome invalido ou comprimento menor que 3";
+            return $return;
+        }
         $this->Db = $this->conexaoDB();
         $sql = "INSERT INTO cliente(
             nome ,
@@ -136,33 +140,48 @@ class ClassCliente extends ClassConexao{
             '".$nome."',
             '".$celular."',
             '".$imagem."')";
-        if (mysqli_query($this->Db,$sql)){
-            return mysqli_insert_id($this->Db);
-        }else{ 
-            return false;
-        };
 
+        try {
+            if ($this->Db->query($sql)){
+                $return["insertedId"] = mysqli_insert_id($this->Db);
+            } else{
+                $return["Error"] = "Erro ao inserir cliente ". $nome;
+            }
+
+        } catch (mysqli_sql_exception $e) {
+            $return["SQL"] = $sql;
+            $return["Error"] = $e->errorMessage();
+        };
+        return $return;
     }
 
     public function updCliente($idCli,$nome,$celular,$imagem)
     {
+        if (strlen($nome) < 3){
+            $return["Error"] = "Nome invalido ou comprimento menor que 3";
+        }
         $this->Db = $this->conexaoDB();
         $sql = "UPDATE cliente
                 SET nome ='".$nome."',
                     celular = '".$celular."',
                     imagem = '".$imagem."'
                 WHERE idCli = ".$idCli;
-
-        if (mysqli_query($this->Db,$sql)){
-            return true;
-        }else{ 
-            return false;
+        try {
+            $this->Db->query($sql);
+            $this->id = mysqli_insert_id($this->Db);
+            $return["updatedId"] = $idCli;
+        } catch (mysqli_sql_exception $e) {
+            $return["SQL"] = $sql;
+            $return["Error"] = $e->errorMessage();
         };
 
     }
 
     public function updClienteNomeCel($idCli,$nome,$celular)
     {
+        if (strlen($nome) < 3){
+            $return["Error"] = "Nome invalido ou comprimento menor que 3";
+        }
         $this->Db = $this->conexaoDB();
         $sql = "UPDATE cliente
                 SET nome ='".$nome."',
@@ -170,10 +189,11 @@ class ClassCliente extends ClassConexao{
                 WHERE idCli = ".$idCli;
 
         if (mysqli_query($this->Db,$sql)){
-            return true;
+            $return["updatedId"] = $idCli;
         }else{ 
-            return false;
+            $return["Error"] = "Ocorreu algum erro ao atualizar cliente $idCli";
         };
+        return $return;
 
     }
 //     public function inserir_alterar()
