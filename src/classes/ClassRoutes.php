@@ -18,6 +18,7 @@ Class ClassRoutes{
             "agenda"=>"ControllerAgenda",
             "colaborador"=>"ControllerColaborador",
             "transacao"=>"ControllerTransacao",
+            "dados"=>"ControllerDados",
             "cliente"=>"ControllerCliente"
         );
         

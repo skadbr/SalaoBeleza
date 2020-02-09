@@ -5,7 +5,11 @@
                                 <div class="mini-stat clearfix">
                                     <a href="<?php echo DIRPAGE ?>agenda"><span class="mini-stat-icon pink"><i class="far fa-calendar-alt"></i></span></a>
                                     <div class="mini-stat-info">
-                                        <span><div id="total_agendamentos">0</div> </span> Agendamentos
+                                        <span>
+                                            <div id="total_agendamentos">
+                                                <!-- <?php $agenda     = new App\Model\ClassAgenda();     $agenda->TotalAgendamentos(); ?> -->
+                                            </div>
+                                        </span> Agendamentos
                                     </div>
                                 </div>
                             </div>

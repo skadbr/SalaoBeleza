@@ -47,10 +47,18 @@
 								</div> 
 								<div class="form-group row">
 									<label for="when" class="col-sm-2 control-label">Agenda para:</label>
-									<div class="col-sm-10">
+									<div class="col-sm-6">
 										<div id="when">texto</div>
 									</div>
+									<div class="col-sm-4" style="text-align:right;">
+										<button type="submit" class="btn btn-warning btn-sm" id="updateButton">Salvar</button>
+									</div>
 								</div> 
+								<!-- <div class="form-group row">
+									<div class="col-sm-12" style="text-align:right;">
+										<button type="submit" class="btn btn-warning btn-sm" id="updateButton">Salvar</button>
+									</div>
+								</div> -->
 								<!-- Agenda para: <div id="when" class="form-text text-muted">texto</div> -->
 								<input type="hidden" class="form-control" id="title" name="title">
 								<input type="hidden" class="form-control" id="diaInteiro" name="diaInteiro">
@@ -67,19 +75,20 @@
 						<div class="alert alert-warning fade show" id="AlertUpd"></div>
 					</div> 
 					<div class="modal-footer">
-						<div class="col-sm-4" style="text-align:left;">
-							<button type="submit" class="btn btn-warning btn-sm" id="updateButton">Salvar</button>
-						</div>
-						<div class="col-sm-4" style="text-align:center;">
-							<button type="submit" class="btn btn-danger btn-sm" id="deleteButton">Excluir</button>
-						</div>
-						<div class="col-sm-4"  style="text-align:right;">
-							<button type="button" class="btn btn-labeled btn-secondary btn-sm" data-dismiss="modal">
-								<span class="btn-label" >
-									<i class="fab fa-sellcast"></i>
-								</span>Fechar
-							</button>
-						</div>
+						<!-- <div class="form-group row"> -->
+							<div class="col-sm-2" style="text-align:left;">
+								<button type="submit" class="btn btn-danger btn-sm" id="deleteButton">Excluir</button>
+							</div>
+							<div class="col-sm-8" style="text-align:center;">
+							</div>
+							<div class="col-sm-2" style="text-align:right;">
+								<button type="button" class="btn btn-labeled btn-secondary btn-sm" data-dismiss="modal">
+									<span class="btn-label" >
+										<i class="fab fa-sellcast"></i>
+									</span>Voltar
+								</button>
+							</div>
+						<!-- </div> -->
 					</div>
 				</div>
 			</div>

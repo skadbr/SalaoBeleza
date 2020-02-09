@@ -79,6 +79,7 @@ function AtualizarAgenda(info){
 	
 		$("#listaItens").html(itens);
 		$('#formItens').css("display","block");
+		$('#deleteButton').css("display","block");
 	} else { //evento novo
 		$('#upd #id').val(0);
 		$('#upd #title').val('');
@@ -93,6 +94,7 @@ function AtualizarAgenda(info){
 		jQuery("#AlertUpd").html("Informe os dados do cliente e colaborador");
 		$("#AlertUpd").show();
 		$('#formItens').css("display","none");
+		$('#deleteButton').css("display","none");
 		// jQuery("#AlertUpd").html("Adicione os itens de faturamento");
 		// $("#AlertUpd").show();
 	}
@@ -239,7 +241,24 @@ document.addEventListener('DOMContentLoaded', function() {
 			// idColab = info.event.extendedProps.idColab;
 			// nomeColab = info.event.extendedProps.nomeColab;
 			// alert("id:"+id+" idcli:"+idCli+" odColab:"+idColab);
-          },
+        },
+
+		// dayRender: function(dayRenderInfo ) {
+		// 	dayRenderInfo.el.innerHTML = "Hllo World"; 
+		// 	var today = moment();
+		// 	// var end = moment().add(7, 'days');
+		// 	// if (date.get('date') == today.get('date')) {
+		// 	diaCalendar = dayRenderInfo;  
+		// 	hoje = today._d;
+		// 	// if (diaCalendar.toString('date') == today.get('date')) {
+		// 		dayRenderInfo.el.backgroundColor = "#e8e8e8";
+		// 			// cell.css("background", "#e8e8e8");
+		// 	// }
+		// },
+
+
+
+
 
 		select: function(info) { //Adicionar novo
 			AtualizarAgenda(info);
@@ -320,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		} else {
 			$('#modalFormAgenda').find('#upd #nomeCli').focus();
 		}
-		$('#formItens #qtdFaturar').val('1');		
+		$('#formItens #qtdFaturar').val('1');	
 	});
 
 
@@ -629,34 +648,24 @@ document.addEventListener('DOMContentLoaded', function() {
 			data: Dados,
 			dataType: "json",
 			type: "POST",
-			error: function(e) {
-				jQuery("#AlertUpd").html(e["responseText"]);
-				$("#AlertUpd").show();
-			},
-			// .done(function (response) {
-			success: function(retorno) {
-				if (retorno.responseJSON.Error) {
-					jQuery("#AlertUpd").html(retorno.Error);
-					$("#AlertUpd").show();
-					return false;
-				} 
-				if (retorno.responseJSON.insertedId) {
-					jQuery("#AlertUpd").html("Agenda #" +retorno.responseJSON.insertedId+" gravada com sucesso!");
-					$('#upd #id').val(retorno.insertedId);
-
+            complete:  function(jqXHR, textStatus) {
+                if (textStatus !== "success"){
+                    $("#AlertUpd").html('Status:'+textStatus+'<br>'+jqXHR.responseText);
+                    $("#AlertUpd").show();
+                    return false;
 				}
-				if (retorno.responseJSON.updatedId) {
-					jQuery("#AlertUpd").html("Agenda #" +retorno.responseJSON.updatedId+" atualizada com sucesso!");
+				if (jqXHR.responseJSON.insertedId) {
+					jQuery("#AlertUpd").html("Agenda #" +jqXHR.responseJSON.insertedId+" gravada com sucesso!");
+					$('#upd #id').val(jqXHR.responseJSON.insertedId);
+					document.getElementById('modaltitle').innerText = 'Editar Evento ' + jqXHR.responseJSON.insertedId;		
+				}
+				if (jqXHR.responseJSON.updatedId) {
+					jQuery("#AlertUpd").html("Agenda #" +jqXHR.responseJSON.updatedId+" atualizada com sucesso!");
 				} 
-				// document.getElementById("btn-AddItens").disabled = false;
 				$("#AlertUpd").show();
 				$('#formItens').css("display","block");
-				// if(retorno["affected_rows"] == 1) { //comentado pois mesmo que usuario não altere nada, devemos fazer o refetch pois pode ser que o usuario tenha alterado o nome do usuario ou o telefone.
-					calendar.unselect();
-					calendar.refetchEvents();
-				// } else {
-				// 	return false;
-				// }
+				calendar.unselect();
+				calendar.refetchEvents();
 			}
 		});
 	}

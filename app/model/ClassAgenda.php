@@ -2,6 +2,8 @@
 namespace App\Model;
 
 use App\Model\ClassConexao;
+use App\Model\ClassDados;
+
 
 class ClassAgenda extends ClassConexao{
     
@@ -90,7 +92,7 @@ class ClassAgenda extends ClassConexao{
         return $return;
     }
 
-        protected function atualizaEvento($id,$title,$allday,$start,$end,$idCli,$idColab)
+    protected function atualizaEvento($id,$title,$allday,$start,$end,$idCli,$idColab)
     {   
         if ($id > 0) {
             $this->Db = $this->conexaoDB();
@@ -137,10 +139,16 @@ class ClassAgenda extends ClassConexao{
     }
  
     public function TotalAgendamentos(){
-            $this->Db = $this->conexaoDB();
-            $result=$this->Db->query("SELECT count(id) as total from agenda");
-            $data=mysqli_fetch_assoc($result);
-            echo $data['total'];
+            // $this->Db = $this->conexaoDB();
+            // $result=$this->Db->query("SELECT count(id) as total from agenda");
+            // $data=mysqli_fetch_assoc($result);
+            // echo $data['total'];
+             $sql = "SELECT count(id) as conta from agenda";
+             $dados = new ClassDados();
+            $retorno = json_decode($dados->dadosJson($sql),true);
+            echo $retorno['dados'][0]['conta'];
+            // echo $retorno['result']['sql'];
     }
+
 
 }
