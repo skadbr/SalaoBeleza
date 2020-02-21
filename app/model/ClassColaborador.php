@@ -36,6 +36,21 @@ class ClassColaborador extends ClassConexao{
         echo $data['total'];
     }
 
+    public function ListColab(){
+        $this->Db = $this->conexaoDB();
+        $result=$this->Db->query("SELECT idColab,nome from colaborador");
+        while($row = mysqli_fetch_assoc($result))
+        {
+            $row_set[] = $row; 
+            // $row_set[] = array('label'=>$row['nome'],'id'=>$row['idColab']);; 
+        }
+        if (isset($row_set)){
+            return($row_set);
+        }
+        return(false);
+
+    }
+
     Protected function ListAll()
     {
         $this->Db = $this->conexaoDB();

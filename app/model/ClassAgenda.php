@@ -9,7 +9,7 @@ class ClassAgenda extends ClassConexao{
     
     private $Db;
 
-    protected function listaEventos($start)
+    protected function listaEventos($colabId,$start)
     {
         $this->Db = $this->conexaoDB();
         // $sql = "SELECT id,
@@ -45,7 +45,9 @@ class ClassAgenda extends ClassConexao{
                 left join cliente on cliente.idCli = agenda.idCli
                 left join colaborador on colaborador.idColab = agenda.idColab
             where (date(start) >= '$start')";
-
+        if ($colabId > 0){
+            $sql = $sql." and colaborador.idColab = $colabId";
+        }
         $result = mysqli_query($this->Db,$sql);
 
         while($row = mysqli_fetch_assoc($result))

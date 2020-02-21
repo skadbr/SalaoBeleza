@@ -1,11 +1,29 @@
 <div class="container" style="background: #ffffff;">
+	<div class="alert alert-warning fade show" id="AlertAgenda"></div>
     <div class="row" id="event_list" >
         <div class="col-md-9">
 			<div id="calendar"></div>
         </div>        
         <div class="col-md-3">
-			Area para incluir o resumo
+			Filtrar agenda para
+
+			<?php 
+				$colab = new App\Model\ClassColaborador();     
+				$r = $colab->ListColab(); 
+				// echo '<pre>'; var_dump($r); echo '</pre>';
+				foreach ($r as $linha) {
+					// var_dump($linha);
+					// echo $linha["idColab"].$linha["nome"];
+
+					echo "<div class='form-check'>";
+						echo "<input class='form-check-input' type='radio' name='idColab' value='".$linha['idColab']."' id='".$linha['idColab']."' checked='checked'>";
+						echo "<label class='form-check-label' for='nomecolab'>".$linha['nome']."</label>";
+					echo "</div>";
+					
+				} 
+			?>
         </div> 
+
     </div> 
 	<!--Calendario end-->
 		

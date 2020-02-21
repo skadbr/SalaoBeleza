@@ -311,14 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	//			}
 		},		
 		
-		events: DIRPAGE+'agenda/ListaTodosEventos', 
-			// events: [                {
-			// 		id: 100,
-			// 		title: 'serviço é corte de cabelo',
-			// 		start: '2019-12-18 13:30:00',
-			// 		end: '2019-12-18 15:00:00',
-			// 	}],
-	
+		// events: DIRPAGE+'agenda/ListaTodosEventos', 
 
 	});
 	calendar.render();
@@ -340,6 +333,60 @@ document.addEventListener('DOMContentLoaded', function() {
 			$('#modalFormAgenda').find('#upd #nomeCli').focus();
 		}
 		$('#formItens #qtdFaturar').val('1');	
+	});
+
+	$(document).on('click', '.form-check', function(event) {
+		// event.preventDefault();
+		var radios = document.getElementsByName('idColab');
+		for (var i = 0, length = radios.length; i < length; i++) {
+			if (radios[i].checked) {
+				// do whatever you want with the checked radio
+				var idColab = radios[i].value;
+				// only one radio can be logically checked, don't check the rest
+				break;
+			}
+		}
+		// alert('clicou '+idColab);
+		var eventSources = calendar.getEventSources(); 
+		var len = eventSources.length;
+		for (var i = 0; i < len; i++) { 
+			eventSources[i].remove(); 
+		};
+
+		$url = DIRPAGE+'agenda/ListaTodosEventos';
+		var dados = {};
+		dados.colabId = idColab;
+		$.ajax({
+			method: "POST",
+			dataType: "json",
+			// async:false,
+			url: $url,
+			data: dados,
+            complete:  function(jqXHR, textStatus) {
+                if (textStatus !== "success"){
+                    $("#AlertAgenda").html('Status:'+textStatus+'<br>'+jqXHR.responseText);
+                    $("#AlertAgenda").show();
+					return false;
+                }
+                $("#AlertAgenda").html('Status:'+textStatus);
+                $("#AlertAgenda").show();
+				calendar.addEventSource( jqXHR.responseJSON );
+				calendar.unselect();
+				calendar.refetchEvents();
+			// var out = '';
+            //     for (var i in jqXHR.responseJSON.dados) {
+            //         out += 'linha '+i + ": " + jqXHR.responseJSON.dados[i].id + "\n";
+            //     }
+            //     // $("#retorno").text('Linhas afetadas:'+jqXHR.responseJSON.result.numrows + '\n'+out);
+            },
+
+		});
+
+
+
+
+
+
 	});
 
 

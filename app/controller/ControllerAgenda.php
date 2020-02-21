@@ -161,7 +161,8 @@ class ControllerAgenda extends ClassAgenda {
     #chamar método ListaTodosEventos da ClassAgenda
     public function ListaTodosEventos()
     {
+        $this->recVariaveis();
         $this->start = date("Y-m-d",strtotime(date("Y-m-d")."-90 day"));
-        echo($this->listaEventos($this->start));
+        echo($this->listaEventos($this->colabId, $this->start));
     }
 }
