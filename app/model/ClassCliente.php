@@ -41,7 +41,8 @@ class ClassCliente extends ClassConexao{
         $query = "select idCli, nome, celular, imagem from cliente ";
         if(isset($_POST["search"]["value"]))
         {
-            $query .= 'WHERE nome LIKE "%'.$_POST["search"]["value"].'%" ';
+            $query .= 'WHERE (nome LIKE "%'.$_POST["search"]["value"].'%") ';
+            $query .= 'or (celular LIKE "%'.$_POST["search"]["value"].'%") ';
         }
         $result = $this->Db->query($query);
         $filteredRows = $result->num_rows;

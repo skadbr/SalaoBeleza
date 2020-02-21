@@ -4,8 +4,19 @@
 			<div id="calendar"></div>
         </div>        
         <div class="col-md-3">
-			Area para incluir o resumo
+			Filtrar agenda para
+			<div class="form-check">
+				<input class="form-check-input" type="radio" name="nomecolab" value="Monica" id="Monica" checked="checked">
+				<label class="form-check-label" for="nomecolab">Monica</label>
+			</div>
+			<div class="form-check form-check-inline">
+				<input class="form-check-input" type="radio" name="nomecolab" id="Sérgio" value="sérgio">
+				<label class="form-check-label" for="nomecolab">Sérgio</label>
+			</div>
         </div> 
+
+
+
     </div> 
 	<!--Calendario end-->
 		

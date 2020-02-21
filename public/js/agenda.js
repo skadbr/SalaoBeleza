@@ -342,6 +342,22 @@ document.addEventListener('DOMContentLoaded', function() {
 		$('#formItens #qtdFaturar').val('1');	
 	});
 
+	$(document).on('click', '.form-check', function(event) {
+		// event.preventDefault();
+		var radios = document.getElementsByName('nomecolab');
+		for (var i = 0, length = radios.length; i < length; i++) {
+			if (radios[i].checked) {
+				// do whatever you want with the checked radio
+				var nomecolab = radios[i].value;
+				// only one radio can be logically checked, don't check the rest
+				break;
+			}
+		}
+		alert('clicou '+nomecolab);
+		calendar.unselect();
+		calendar.refetchEvents();
+	});
+
 
 	$(document).on('click', '#DelTransacao', function(event) {
 		event.preventDefault();
