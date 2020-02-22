@@ -8,7 +8,7 @@
 			Filtrar agenda para
 			<?php 
 			echo "<div class='form-check'>";
-			echo "<input class='form-check-input' type='radio' name='idColab' value='0' id='0' checked='checked'>";
+			echo "<input class='form-check-input' type='radio' name='idColab' value='0' id='Todos' checked='checked'>";
 			echo "<label class='form-check-label' for='nomecolab'>Todos</label>";
 			echo "</div>";
 
@@ -20,7 +20,7 @@
 					// echo $linha["idColab"].$linha["nome"];
 
 					echo "<div class='form-check'>";
-						echo "<input class='form-check-input' type='radio' name='idColab' value='".$linha['idColab']."' id='".$linha['idColab']."'>";
+						echo "<input class='form-check-input' type='radio' name='idColab' value='".$linha['idColab']."' id='".$linha['nome']."'>";
 						echo "<label class='form-check-label' for='nomecolab'>".$linha['nome']."</label>";
 					echo "</div>";
 					

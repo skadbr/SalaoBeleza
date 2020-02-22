@@ -7,6 +7,9 @@
 		}
 	}
 */
+var selectedColabId = "0";
+var selectedNomeColab = "Todos";
+
 function formatNumberBR(num){
 	return (new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num));
 }
@@ -193,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	var calendarEl = document.getElementById('calendar');
 	var calendar = new FullCalendar.Calendar(calendarEl, {
 		plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'list','bootstrap' ],
-		themeSystem: 'bootstrap',		
+		// themeSystem: 'bootstrap',		
 		header: {
 			left: 'prev,next today',
 			center: 'title',
@@ -205,12 +208,13 @@ document.addEventListener('DOMContentLoaded', function() {
 //		defaultDate: '<?php echo date('Y-m-d'); ?>',
 		minTime: '08:00:00',
 		maxTime: '19:00:00',
+		locale: initialLocaleCode,
 		contentHeight: 'auto', //Ajustar conform minTime e Maxtime
 //		aspectRatio: 1.3 ,
-		allDayText: 'Vendas ou\nPagamentos',
+		// allDayText: 'Vendas ou\nPagamentos',
 		defaultView: 'timeGridWeek',
 		buttonIcons: false, // show the prev/next text
-		weekNumbers: false,
+		weekNumbers: true,
 		navLinks: true, // can click day/week names to navigate views
 		editable: true,
 		eventLimit: true, // allow "more" link when too many events
@@ -339,7 +343,13 @@ document.addEventListener('DOMContentLoaded', function() {
 		} else {
 			$('#modalFormAgenda').find('#upd #nomeCli').focus();
 		}
-		$('#formItens #qtdFaturar').val('1');	
+		$('#formItens #qtdFaturar').val('1');
+		if (selectedNomeColab !== 'Todos'){
+			$("#upd #nomeColab").val(selectedNomeColab);
+			$("#upd #idColab").val(selectedColabId);
+			$("#upd #title").val($("#upd #nomeColab").val()+"/"+$("#upd #nomeCli").val());
+		}
+
 	});
 
 	$("#modalFormAgenda").on("hide.bs.modal", function () {
@@ -348,13 +358,13 @@ document.addEventListener('DOMContentLoaded', function() {
 		for (var i = 0, length = radios.length; i < length; i++) {
 			if (radios[i].checked) {
 				// do whatever you want with the checked radio
-				var idColab = radios[i].value;
+				selectedColabId = radios[i].value;
 				// only one radio can be logically checked, don't check the rest
 				break;
 			}
 		}
 		// alert('clicou '+idColab);
-		loadEventosColab(idColab);
+		loadEventosColab(selectedColabId);
 
 		// calendar.unselect();
 		// calendar.refetchEvents();
@@ -367,13 +377,14 @@ document.addEventListener('DOMContentLoaded', function() {
 		for (var i = 0, length = radios.length; i < length; i++) {
 			if (radios[i].checked) {
 				// do whatever you want with the checked radio
-				var idColab = radios[i].value;
+				selectedColabId = radios[i].value;
+				selectedNomeColab =  radios[i].id;
 				// only one radio can be logically checked, don't check the rest
 				break;
 			}
 		}
 		// alert('clicou '+idColab);
-		loadEventosColab(idColab);
+		loadEventosColab(selectedColabId);
 
 	});
 
@@ -709,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 
-	function loadEventosColab(idColab){
+	function loadEventosColab(selectedColabId){
 		var eventSources = calendar.getEventSources(); 
 		var len = eventSources.length;
 		for (var i = 0; i < len; i++) { 
@@ -717,7 +728,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		};
 		$url = DIRPAGE+'agenda/ListaTodosEventos';
 		var dados = {};
-		dados.colabId = idColab;
+		dados.colabId = selectedColabId;
 		$.ajax({
 			method: "POST",
 			dataType: "json",
@@ -735,7 +746,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				calendar.addEventSource( jqXHR.responseJSON );
 				calendar.unselect();
 				calendar.refetchEvents();
-			// var out = '';
+
+				// var out = '';
 			//     for (var i in jqXHR.responseJSON.dados) {
 			//         out += 'linha '+i + ": " + jqXHR.responseJSON.dados[i].id + "\n";
 			//     }
