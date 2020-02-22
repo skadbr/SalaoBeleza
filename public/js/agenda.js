@@ -183,6 +183,7 @@ function GeraTabelaItens(idAgenda){
 
 
 
+
 document.addEventListener('DOMContentLoaded', function() {
 
 	var DIRPAGE=document.location.origin+"/SalaoBeleza/";
@@ -311,12 +312,18 @@ document.addEventListener('DOMContentLoaded', function() {
 	//			}
 		},		
 		
-		// events: DIRPAGE+'agenda/ListaTodosEventos', 
-
+		//  events: DIRPAGE+'agenda/ListaTodosEventos', 
+		//  events: loadEventosColab(0), 
+		 
 	});
 	calendar.render();
 
-    $("#modalFormAgenda").on('shown.bs.modal', function(){
+	loadEventosColab(0);
+	// $("#formMain").on('show', function(){
+	// 	alert ('renderizou');
+	// });
+
+	$("#modalFormAgenda").on('shown.bs.modal', function(){
 		$(".date-mask").mask("00/00/0000");
 		$(".time-mask").mask("00:00:00");
 		$(".date-time-mask").mask("00/00/0000 00:00:00");
@@ -335,6 +342,25 @@ document.addEventListener('DOMContentLoaded', function() {
 		$('#formItens #qtdFaturar').val('1');	
 	});
 
+	$("#modalFormAgenda").on("hide.bs.modal", function () {
+
+		var radios = document.getElementsByName('idColab');
+		for (var i = 0, length = radios.length; i < length; i++) {
+			if (radios[i].checked) {
+				// do whatever you want with the checked radio
+				var idColab = radios[i].value;
+				// only one radio can be logically checked, don't check the rest
+				break;
+			}
+		}
+		// alert('clicou '+idColab);
+		loadEventosColab(idColab);
+
+		// calendar.unselect();
+		// calendar.refetchEvents();
+	});
+
+
 	$(document).on('click', '.form-check', function(event) {
 		// event.preventDefault();
 		var radios = document.getElementsByName('idColab');
@@ -347,45 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		}
 		// alert('clicou '+idColab);
-		var eventSources = calendar.getEventSources(); 
-		var len = eventSources.length;
-		for (var i = 0; i < len; i++) { 
-			eventSources[i].remove(); 
-		};
-
-		$url = DIRPAGE+'agenda/ListaTodosEventos';
-		var dados = {};
-		dados.colabId = idColab;
-		$.ajax({
-			method: "POST",
-			dataType: "json",
-			// async:false,
-			url: $url,
-			data: dados,
-            complete:  function(jqXHR, textStatus) {
-                if (textStatus !== "success"){
-                    $("#AlertAgenda").html('Status:'+textStatus+'<br>'+jqXHR.responseText);
-                    $("#AlertAgenda").show();
-					return false;
-                }
-                $("#AlertAgenda").html('Status:'+textStatus);
-                $("#AlertAgenda").show();
-				calendar.addEventSource( jqXHR.responseJSON );
-				calendar.unselect();
-				calendar.refetchEvents();
-			// var out = '';
-            //     for (var i in jqXHR.responseJSON.dados) {
-            //         out += 'linha '+i + ": " + jqXHR.responseJSON.dados[i].id + "\n";
-            //     }
-            //     // $("#retorno").text('Linhas afetadas:'+jqXHR.responseJSON.result.numrows + '\n'+out);
-            },
-
-		});
-
-
-
-
-
+		loadEventosColab(idColab);
 
 	});
 
@@ -644,6 +632,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 
+
+
 	function doDelete(){  // delete event 
 		var eventID = $('#upd #id').val();
 //		alert(eventID);
@@ -705,16 +695,56 @@ document.addEventListener('DOMContentLoaded', function() {
 					jQuery("#AlertUpd").html("Agenda #" +jqXHR.responseJSON.insertedId+" gravada com sucesso!");
 					$('#upd #id').val(jqXHR.responseJSON.insertedId);
 					document.getElementById('modaltitle').innerText = 'Editar Evento ' + jqXHR.responseJSON.insertedId;		
+					// calendar.refetchEvents();
 				}
 				if (jqXHR.responseJSON.updatedId) {
 					jQuery("#AlertUpd").html("Agenda #" +jqXHR.responseJSON.updatedId+" atualizada com sucesso!");
+					// calendar.refetchEvents();
 				} 
 				$("#AlertUpd").show();
 				$('#formItens').css("display","block");
-				calendar.unselect();
-				calendar.refetchEvents();
+				// calendar.unselect();
+				// calendar.refetchEvents();
 			}
 		});
 	}
 
+	function loadEventosColab(idColab){
+		var eventSources = calendar.getEventSources(); 
+		var len = eventSources.length;
+		for (var i = 0; i < len; i++) { 
+			eventSources[i].remove(); 
+		};
+		$url = DIRPAGE+'agenda/ListaTodosEventos';
+		var dados = {};
+		dados.colabId = idColab;
+		$.ajax({
+			method: "POST",
+			dataType: "json",
+			// async:false,
+			url: $url,
+			data: dados,
+			complete:  function(jqXHR, textStatus) {
+				if (textStatus !== "success"){
+					$("#AlertAgenda").html('Status:'+textStatus+'<br>'+jqXHR.responseText);
+					$("#AlertAgenda").show();
+					return false;
+				}
+				$("#AlertAgenda").html('Status:'+textStatus);
+				$("#AlertAgenda").show();
+				calendar.addEventSource( jqXHR.responseJSON );
+				calendar.unselect();
+				calendar.refetchEvents();
+			// var out = '';
+			//     for (var i in jqXHR.responseJSON.dados) {
+			//         out += 'linha '+i + ": " + jqXHR.responseJSON.dados[i].id + "\n";
+			//     }
+			//     // $("#retorno").text('Linhas afetadas:'+jqXHR.responseJSON.result.numrows + '\n'+out);
+			},
+	
+		});
+	}
+
 });
+
+

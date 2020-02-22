@@ -6,9 +6,13 @@
         </div>        
         <div class="col-md-3">
 			Filtrar agenda para
-
 			<?php 
-				$colab = new App\Model\ClassColaborador();     
+			echo "<div class='form-check'>";
+			echo "<input class='form-check-input' type='radio' name='idColab' value='0' id='0' checked='checked'>";
+			echo "<label class='form-check-label' for='nomecolab'>Todos</label>";
+			echo "</div>";
+
+			$colab = new App\Model\ClassColaborador();     
 				$r = $colab->ListColab(); 
 				// echo '<pre>'; var_dump($r); echo '</pre>';
 				foreach ($r as $linha) {
@@ -16,7 +20,7 @@
 					// echo $linha["idColab"].$linha["nome"];
 
 					echo "<div class='form-check'>";
-						echo "<input class='form-check-input' type='radio' name='idColab' value='".$linha['idColab']."' id='".$linha['idColab']."' checked='checked'>";
+						echo "<input class='form-check-input' type='radio' name='idColab' value='".$linha['idColab']."' id='".$linha['idColab']."'>";
 						echo "<label class='form-check-label' for='nomecolab'>".$linha['nome']."</label>";
 					echo "</div>";
 					
