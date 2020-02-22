@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		contentHeight: 'auto', //Ajustar conform minTime e Maxtime
 //		aspectRatio: 1.3 ,
 		allDayText: 'Vendas ou\nPagamentos',
-		defaultView: 'timeGridDay',
+		defaultView: 'timeGridWeek',
 		buttonIcons: false, // show the prev/next text
 		weekNumbers: false,
 		navLinks: true, // can click day/week names to navigate views
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		eventLimit: true, // allow "more" link when too many events
 		selectMirror: false,
 		selectable: true,
-		businessHours: false, // display business hours
+		businessHours: true, // display business hours
 		nowIndicator: true,
 
 

@@ -1,10 +1,10 @@
 <div class="container" style="background: #ffffff;">
 	<div class="alert alert-warning fade show" id="AlertAgenda"></div>
     <div class="row" id="event_list" >
-        <div class="col-md-9">
+        <div class="col-md-10">
 			<div id="calendar"></div>
         </div>        
-        <div class="col-md-3">
+        <div class="col-md-2">
 			Filtrar agenda para
 			<?php 
 			echo "<div class='form-check'>";
